@@ -1,8 +1,21 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
-// import connectDB from "../config/db.js";
+// import { connectDB } from "../config/db.js";
 
 // connectDB();
+
+const cardSchema = mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  tasks: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "tasks",
+    },
+  ],
+});
 
 const boardSchema = mongoose.Schema({
   title: {
@@ -24,12 +37,7 @@ const boardSchema = mongoose.Schema({
       ref: "users",
     },
   ],
-  cards: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "cards",
-    },
-  ],
+  cards: [cardSchema],
 });
 
 const boards = mongoose.model("boards", boardSchema);

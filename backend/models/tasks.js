@@ -1,12 +1,15 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
+// import { connectDB } from "../config/db.js";
+
+// connectDB();
 
 const taskSchema = mongoose.Schema({
   title: {
     type: String,
     required: true,
   },
-  Status: {
+  status: {
     type: String,
     required: true,
   },

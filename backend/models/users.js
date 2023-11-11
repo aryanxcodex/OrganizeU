@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 import bcrypt from "bcryptjs";
-import { connectDB } from "../config/db.js";
+// import { connectDB } from "../config/db.js";
 
 // connectDB();
 
@@ -31,12 +31,6 @@ const userSchema = mongoose.Schema({
     {
       type: Schema.Types.ObjectId,
       ref: "boards",
-    },
-  ],
-  tasks: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "tasks",
     },
   ],
 });
