@@ -11,7 +11,8 @@ const fetchBoards = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    res.status(200).json({ user });
+    await user.populate('boards');
+    res.status(200).json(user.boards);
   } else {
     res.status(404);
     throw new Error("User not Found");

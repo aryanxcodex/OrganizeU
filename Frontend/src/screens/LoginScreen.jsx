@@ -23,13 +23,26 @@ const LoginScreen = () => {
     setLoading(true);
 
     await axios
-      .post(`${BASE_USERS_URL}/login`, {
-        email: email,
-        password: password,
-      })
+      .post(
+        `${BASE_USERS_URL}/login`,
+        {
+          email: email,
+          password: password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      )
       .then((res) => {
         setLoading(false);
-        setUser({ username: res.data.name, email: res.data.email, isLoggedin: true });
+        setUser({
+          username: res.data.name,
+          email: res.data.email,
+          isLoggedin: true,
+        });
         navigate("/dashboard");
       })
       .catch((error) => {

@@ -56,7 +56,7 @@ const DashBoardScreen = () => {
           </div>
         </div>
       </div>
-      <div className="lg:flex lg:flex-row h-screen bg-blue-400">
+      <div className="lg:flex lg:flex-row h-screen bg-white">
         <div className="hidden lg:flex flex-col w-96 bg-gray-200 p-4">
           <div className="my-5 px-6">
             <ul className="space-y-2">

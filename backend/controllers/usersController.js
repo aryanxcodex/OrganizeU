@@ -14,6 +14,10 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPasswords(password))) {
+    if(!user.isVerified) {
+      res.status(400);
+      throw new Error("Please Verify your email first");
+    }
     generateToken(res, user._id);
     res.status(201).json({
       _id: user._id,
@@ -116,7 +120,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 });
 
 //@desc Confirm User
-//route GET /api/users/confirm:id
+//route GET /api/users/confirm/:id
 //@access Public
 
 const confirmUser = asyncHandler(async (req, res) => {

@@ -8,8 +8,9 @@ import LoginScreen from "./screens/LoginScreen.jsx";
 import { ToastContainer } from "react-toastify";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import BoardsScreen from "./screens/BoardsScreen.jsx";
-import { DragDropContext } from "react-beautiful-dnd";
-import Cards from "./components/Cards.jsx";
+import { Suspense } from "react";
+import Skeleton from "react-loading-skeleton";
+import Loader from "./components/Loader.jsx";
 
 const router = createBrowserRouter([
   {
@@ -31,7 +32,12 @@ const router = createBrowserRouter([
         <DashBoardScreen />
       </PrivateRoute>
     ),
-    children: [{ path: "boards", element: <Cards /> }],
+    children: [
+      {
+        path: "boards",
+        element: <BoardsScreen />,
+      },
+    ],
   },
   {
     path: "/login",
