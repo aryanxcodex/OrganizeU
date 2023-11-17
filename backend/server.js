@@ -6,7 +6,8 @@ import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import path from "path";
 import userRoutes from "./routes/usersRoutes.js";
 import boardsRoutes from "./routes/boardsRoutes.js";
-// import cardsRoutes from "./routes/cardsRoutes.js";
+import cardsRoutes from "./routes/cardsRoutes.js";
+import tasksRoutes from "./routes/tasksRoutes.js";
 import cors from "cors";
 dotenv.config();
 const port = process.env.PORT || 5000;
@@ -14,10 +15,10 @@ const port = process.env.PORT || 5000;
 connectDB();
 
 const corsOptions = {
-  origin: 'http://localhost:5173', 
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true, 
-  optionsSuccessStatus: 204, 
+  origin: "http://localhost:5173",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
 };
 
 const app = express();
@@ -29,8 +30,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use("/api/users", userRoutes);
 app.use("/api/b", boardsRoutes);
-// app.use("/api/c", cardsRoutes);
-
+app.use("/api/c", cardsRoutes);
+app.use("/api/t", tasksRoutes);
 
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();

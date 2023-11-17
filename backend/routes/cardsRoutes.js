@@ -1,9 +1,9 @@
-// import express from 'express';
-// const router = express.Router();
-// import { protect } from '../middleware/authMiddleware.js';
-// import { createCard, deleteCard } from '../controllers/cardsController.js';
+import express from "express";
+const router = express.Router();
 
-// router.route('/boards/:boardId/cards').post(protect, createCard);
-// router.route('/boards/:boardId/cards/:cardId').delete(protect, deleteCard);
+import { createCard } from "../controllers/boardsController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
-// export default router;
+router.route("/:boardId").post(protect, createCard);
+
+export default router;

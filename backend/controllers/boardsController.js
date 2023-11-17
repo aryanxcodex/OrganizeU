@@ -11,12 +11,28 @@ const fetchBoards = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    await user.populate('boards');
+    await user.populate("boards");
     res.status(200).json(user.boards);
   } else {
     res.status(404);
     throw new Error("User not Found");
   }
+});
+
+//@desc Fetch Cards and Tasks
+//route GET /api/b/boards/:boardId
+//@access PRIVATE
+
+const fetchCardsnTasks = asyncHandler(async (req, res) => {
+  const { boardId } = req.params;
+
+  const board = await Boards.findById(boardId).populate({
+    path: "cards",
+    populate: {
+      path: "tasks",
+      model: "tasks",
+    },
+  });
 });
 
 //@desc Create a Board
@@ -52,7 +68,7 @@ const createBoard = asyncHandler(async (req, res) => {
 
     await session.commitTransaction();
 
-    res.status(200).json({ message: "Board Created.." });
+    res.status(200).json({board, message: "Board Created.." });
   } catch (error) {
     await session.abortTransaction();
     throw new Error(error.message);
@@ -92,4 +108,24 @@ const deleteBoard = asyncHandler(async (req, res) => {
   session.endSession();
 });
 
-export { fetchBoards, createBoard, deleteBoard };
+//@desc Create a Card within a Board
+//route POST /api/c/:boardId
+//@access PRIVATE
+
+const createCard = asyncHandler(async (req, res) => {
+  const { boardId } = req.params;
+  const { title } = req.body;
+
+  const board = await Boards.findById(boardId);
+
+  if (board) {
+    board.cards.push({ title });
+    const updatedBoard = await board.save();
+    res.status(200).json({ updatedBoard, message: "Card Created.." });
+  } else {
+    res.status(404);
+    throw new Error("Board Not Found");
+  }
+});
+
+export { fetchBoards, fetchCardsnTasks, createBoard, deleteBoard, createCard };

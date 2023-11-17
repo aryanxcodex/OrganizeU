@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
+import tasks from "./tasks.js";
 // import { connectDB } from "../config/db.js";
 
 // connectDB();
