@@ -3,19 +3,29 @@ import Boards from "../models/boards.js";
 import User from "../models/users.js";
 import { conn } from "../config/db.js";
 
-//@desc Fetch Boards
-//route GET /api/b/boards
+//@desc Get all the boards of the user
+//route GET /api/b
 //@access PRIVATE
 
-const fetchBoards = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+const getAllBoards = asyncHandler(async (req, res) => {
+  try {
+    // Get user
+    const user = await User.findById(req.user._id);
 
-  if (user) {
-    await user.populate("boards");
-    res.status(200).json(user.boards);
-  } else {
-    res.status(404);
-    throw new Error("User not Found");
+    // Get board's ids of user
+    const boardIds = user.boards;
+
+    // Get boards of user
+    const boards = await Boards.find({ _id: { $in: boardIds } });
+
+    // Delete unneccesary objects
+    boards.forEach((board) => {
+      board.lists = undefined;
+    });
+
+    res.status(200).json({ boards });
+  } catch (error) {
+    res.status(500).send(error);
   }
 });
 
@@ -36,45 +46,41 @@ const fetchCardsnTasks = asyncHandler(async (req, res) => {
 });
 
 //@desc Create a Board
-//route POST /api/b/boards
+//route POST /api/b/create
 //@access PRIVATE
 
 const createBoard = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
 
-  const session = await conn.startSession();
-
-  try {
-    session.startTransaction();
-
-    const creator = await User.findById(req.user._id);
-
-    const board = await Boards.create(
-      [
-        {
-          title,
-          description,
-          creator,
-        },
-      ],
-      { session }
-    );
-
-    await User.updateOne(
-      { _id: req.user._id },
-      { $push: { boards: board } },
-      { session }
-    );
-
-    await session.commitTransaction();
-
-    res.status(200).json({board, message: "Board Created.." });
-  } catch (error) {
-    await session.abortTransaction();
-    throw new Error(error.message);
+  if (!(title && description)) {
+    throw new Error("Title and/or description cannot be null");
   }
 
-  session.endSession();
+  try {
+    //Create and save new board
+    let newBoard = Boards({ title, description });
+    newBoard.save();
+
+    // Add this board to owner's boards
+    const user = await User.findById(req.user._id);
+    user.boards.unshift(newBoard.id);
+    await user.save();
+
+    // Add user to members of this board
+    let allMembers = [];
+    allMembers.push({
+      user: user._id,
+      role: "owner",
+    });
+
+    // Save new board
+    newBoard.members = allMembers;
+    await newBoard.save();
+
+    res.status(200).json({ newBoard, message: "Board Created!.." });
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
 //@desc Delete a Board
@@ -128,4 +134,90 @@ const createCard = asyncHandler(async (req, res) => {
   }
 });
 
-export { fetchBoards, fetchCardsnTasks, createBoard, deleteBoard, createCard };
+const getById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Validate whether params.id is in the user's boards or not
+  const validate = req.user.boards.filter((board) => board === id);
+  if (!validate) {
+    throw new Error(
+      "You can not see this board, you are not a member or owner!"
+    );
+  }
+
+  try {
+    // Get board by id
+    const board = await Boards.findById(id);
+    res.status(200).json({ board });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+const addMember = asyncHandler(async (req, res) => {
+  // Validate whether params.boardId is in the user's boards or not
+  const validate = req.user.boards.filter(
+    (board) => board === req.params.boardId
+  );
+  if (!validate) {
+    throw new Error(
+      "You can not add member to this board, you are not a member or owner!"
+    );
+  }
+});
+
+const updateBoardTitle = asyncHandler(async (req, res) => {
+  const { boardId } = req.params;
+  const { title } = req.body;
+  // Validate whether params.id is in the user's boards or not
+  const validate = req.user.boards.filter((board) => board === boardId);
+  if (!validate) {
+    throw new Error(
+      "You can not change title of this board, you are not a member or owner!"
+    );
+  }
+
+  try {
+    // Get board by id
+    const board = await Boards.findById(boardId);
+    board.title = title;
+    await board.save();
+    res.status(200).json({ message: "Success!", board });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+const updateBoardDescription = asyncHandler(async (req, res) => {
+  const { boardId } = req.params;
+  const { description } = req.body;
+  // Validate whether params.id is in the user's boards or not
+  const validate = req.user.boards.filter((board) => board === boardId);
+  if (!validate) {
+    throw new Error(
+      "You can not change description of this board, you are not a member or owner!"
+    );
+  }
+
+  try {
+    // Get board by id
+    const board = await Boards.findById(boardId);
+    board.description = description;
+    await board.save();
+    res.status(200).json({ message: "Success!", board });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+export {
+  getAllBoards,
+  fetchCardsnTasks,
+  createBoard,
+  deleteBoard,
+  createCard,
+  getById,
+  addMember,
+  updateBoardDescription,
+  updateBoardTitle,
+};

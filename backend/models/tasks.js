@@ -19,9 +19,9 @@ const taskSchema = mongoose.Schema({
       ref: "users",
     },
   ],
-  pos: {
-    type: Number,
-    required: true,
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: "cards",
   },
 });
 

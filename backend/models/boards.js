@@ -1,22 +1,9 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 import tasks from "./tasks.js";
-// import { connectDB } from "../config/db.js";
+import { connectDB } from "../config/db.js";
 
-// connectDB();
-
-const cardSchema = mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-  },
-  tasks: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "tasks",
-    },
-  ],
-});
+connectDB();
 
 const boardSchema = mongoose.Schema({
   title: {
@@ -27,18 +14,24 @@ const boardSchema = mongoose.Schema({
     type: String,
     required: false,
   },
-  creator: {
-    type: Schema.Types.ObjectId,
-    ref: "users",
-    required: true,
-  },
   members: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "users",
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: "users",
+      },
+      role: {
+        type: String,
+        default: "member",
+      },
     },
   ],
-  cards: [cardSchema],
+  cards: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "cards",
+    },
+  ],
 });
 
 const boards = mongoose.model("boards", boardSchema);

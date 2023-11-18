@@ -60,10 +60,12 @@ const deleteTask = asyncHandler(async (req, res) => {
   }
 });
 
-//@desc Delete a Task
-//route DELETE /api/t/tasks/:taskId
+//@desc Update a Tasks Position/Description/Status
+//route PUT /api/t/tasks/:taskId
 //@access PRIVATE
 
-const updateTasks = asyncHandler(async (req, res) => {});
+const updateTasks = asyncHandler(async (req, res) => {
+  
+});
 
 export { createTask, deleteTask };

@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 import bcrypt from "bcryptjs";
-// import { connectDB } from "../config/db.js";
+import { connectDB } from "../config/db.js";
 
-// connectDB();
+connectDB();
 
 const userSchema = mongoose.Schema({
   name: {

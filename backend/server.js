@@ -28,7 +28,7 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use("/api/users", userRoutes);
+app.use("/api/u", userRoutes);
 app.use("/api/b", boardsRoutes);
 app.use("/api/c", cardsRoutes);
 app.use("/api/t", tasksRoutes);
