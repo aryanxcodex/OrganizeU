@@ -1,7 +1,6 @@
 import asyncHandler from "express-async-handler";
 import Boards from "../models/boards.js";
 import User from "../models/users.js";
-import { conn } from "../config/db.js";
 
 //@desc Get all the boards of the user
 //route GET /api/b
@@ -20,7 +19,7 @@ const getAllBoards = asyncHandler(async (req, res) => {
 
     // Delete unneccesary objects
     boards.forEach((board) => {
-      board.lists = undefined;
+      board.cards = undefined;
     });
 
     res.status(200).json({ boards });
