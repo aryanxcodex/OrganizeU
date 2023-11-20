@@ -40,7 +40,7 @@ const createCard = asyncHandler(async (req, res) => {
 
     res.status(200).json({ newCard, message: "Card Created.." });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -76,7 +76,7 @@ const getAllCards = asyncHandler(async (req, res) => {
 
     res.status(200).json({ responseObject });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -117,7 +117,7 @@ const updateCardTitle = asyncHandler(async (req, res) => {
 
     res.status(200).json({ message: "Success!", card });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -165,7 +165,7 @@ const deleteById = asyncHandler(async (req, res) => {
 
     res.status(200).json({ message: "Success!", result });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -228,7 +228,7 @@ const updateTaskOrder = asyncHandler(async (req, res) => {
 
     res.status(200).json({ message: "Success!", sourceCard, destinationCard });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 

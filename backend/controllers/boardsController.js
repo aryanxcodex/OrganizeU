@@ -24,7 +24,7 @@ const getAllBoards = asyncHandler(async (req, res) => {
 
     res.status(200).json({ boards });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -78,7 +78,7 @@ const createBoard = asyncHandler(async (req, res) => {
 
     res.status(200).json({ newBoard, message: "Board Created!.." });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -86,52 +86,52 @@ const createBoard = asyncHandler(async (req, res) => {
 //route DELETE /api/b/:boardId
 //@access PRIVATE
 
-const deleteBoard = asyncHandler(async (req, res) => {
-  const { boardId } = req.params;
+// const deleteBoard = asyncHandler(async (req, res) => {
+//   const { boardId } = req.params;
 
-  const session = await conn.startSession();
+//   const session = await conn.startSession();
 
-  try {
-    session.startTransaction();
+//   try {
+//     session.startTransaction();
 
-    await User.updateOne(
-      { _id: req.user._id },
-      { $pull: { boards: boardId } },
-      { session }
-    );
+//     await User.updateOne(
+//       { _id: req.user._id },
+//       { $pull: { boards: boardId } },
+//       { session }
+//     );
 
-    await Boards.findByIdAndDelete(boardId, { session });
+//     await Boards.findByIdAndDelete(boardId, { session });
 
-    await session.commitTransaction();
+//     await session.commitTransaction();
 
-    res.status(200).json({ message: "Board Deleted.." });
-  } catch (error) {
-    await session.abortTransaction();
-    throw new Error(error.message);
-  }
+//     res.status(200).json({ message: "Board Deleted.." });
+//   } catch (error) {
+//     await session.abortTransaction();
+//     throw new Error(error.message);
+//   }
 
-  session.endSession();
-});
+//   session.endSession();
+// });
 
 //@desc Create a Card within a Board
 //route POST /api/c/:boardId
 //@access PRIVATE
 
-const createCard = asyncHandler(async (req, res) => {
-  const { boardId } = req.params;
-  const { title } = req.body;
+// const createCard = asyncHandler(async (req, res) => {
+//   const { boardId } = req.params;
+//   const { title } = req.body;
 
-  const board = await Boards.findById(boardId);
+//   const board = await Boards.findById(boardId);
 
-  if (board) {
-    board.cards.push({ title });
-    const updatedBoard = await board.save();
-    res.status(200).json({ updatedBoard, message: "Card Created.." });
-  } else {
-    res.status(404);
-    throw new Error("Board Not Found");
-  }
-});
+//   if (board) {
+//     board.cards.push({ title });
+//     const updatedBoard = await board.save();
+//     res.status(200).json({ updatedBoard, message: "Card Created.." });
+//   } else {
+//     res.status(404);
+//     throw new Error("Board Not Found");
+//   }
+// });
 
 const getById = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -149,7 +149,7 @@ const getById = asyncHandler(async (req, res) => {
     const board = await Boards.findById(id);
     res.status(200).json({ board });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -183,7 +183,7 @@ const updateBoardTitle = asyncHandler(async (req, res) => {
     await board.save();
     res.status(200).json({ message: "Success!", board });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -205,7 +205,7 @@ const updateBoardDescription = asyncHandler(async (req, res) => {
     await board.save();
     res.status(200).json({ message: "Success!", board });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -213,8 +213,6 @@ export {
   getAllBoards,
   fetchCardsnTasks,
   createBoard,
-  deleteBoard,
-  createCard,
   getById,
   addMember,
   updateBoardDescription,

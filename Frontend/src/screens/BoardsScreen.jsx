@@ -3,12 +3,13 @@ import Cards from "../components/Cards";
 import axios from "axios";
 import { BASE_BOARDS_URL } from "../../config.js";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import { useQuery } from "@tanstack/react-query";
 
 const BoardsScreen = () => {
   const fetchBoards = async () => {
-    return axios.get(`${BASE_BOARDS_URL}/boards`, {
+    return axios.get(`${BASE_BOARDS_URL}/`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -27,8 +28,10 @@ const BoardsScreen = () => {
         ? Array.from({ length: 5 }).map((_, index) => (
             <Skeleton height={75} key={index} containerClassName="flex-1" />
           ))
-        : data.data.map((item, index) => (
-            <Cards title={item.title} key={index} />
+        : data.data.boards.map((item, index) => (
+            <Link to={`/board/${item._id}`}>
+              <Cards title={item.title} key={index} />
+            </Link>
           ))}
     </div>
   );

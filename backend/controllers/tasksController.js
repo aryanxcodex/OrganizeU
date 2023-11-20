@@ -54,7 +54,7 @@ const createTask = asyncHandler(async (req, res) => {
 
     res.status(200).json({ result, message: "Task Created .." });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -97,7 +97,7 @@ const getTask = asyncHandler(async (req, res) => {
 
     res.status(200).json({ returnObject });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -137,7 +137,7 @@ const updateTask = asyncHandler(async (req, res) => {
 
     res.status(200).json({ task, message: "Success" });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 
@@ -177,7 +177,7 @@ const deleteTask = asyncHandler(async (req, res) => {
 
     res.status(200).json({ result, card, message: "Success" });
   } catch (error) {
-    res.status(500).send(error);
+    throw new Error(error.message);
   }
 });
 export { createTask, getTask, updateTask, deleteTask };

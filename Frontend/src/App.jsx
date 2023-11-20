@@ -8,6 +8,7 @@ import LoginScreen from "./screens/LoginScreen.jsx";
 import { ToastContainer } from "react-toastify";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import BoardsScreen from "./screens/BoardsScreen.jsx";
+import SingleBoardScreen from "./screens/SingleBoardScreen.jsx";
 import { Suspense } from "react";
 import Skeleton from "react-loading-skeleton";
 import Loader from "./components/Loader.jsx";
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
         element: <BoardsScreen />,
       },
     ],
+  },
+  {
+    path: "/board/:boardId",
+    element: <SingleBoardScreen />,
   },
   {
     path: "/login",
