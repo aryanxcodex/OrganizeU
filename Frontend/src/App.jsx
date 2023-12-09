@@ -42,7 +42,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/board/:boardId",
-    element: <SingleBoardScreen />,
+    element: (
+      <PrivateRoute>
+        <DashBoardScreen>
+          <SingleBoardScreen />
+        </DashBoardScreen>
+      </PrivateRoute>
+    ),
   },
   {
     path: "/login",

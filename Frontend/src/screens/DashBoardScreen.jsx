@@ -6,7 +6,7 @@ import { HiBars3 } from "react-icons/hi2";
 import { Outlet } from "react-router-dom";
 import { Link } from "react-router-dom";
 
-const DashBoardScreen = () => {
+const DashBoardScreen = (props) => {
   const user = useRecoilValue(userState);
 
   return (
@@ -62,7 +62,7 @@ const DashBoardScreen = () => {
             <ul className="space-y-2">
               <li className="text-center font-body">
                 <Link
-                  to="boards"
+                  to="/dashboard/boards"
                   className="text-blue-500 hover:bg-blue-500 hover:text-white rounded-full px-4 py-2 transition-all duration-300 block"
                 >
                   My Boards
@@ -80,8 +80,9 @@ const DashBoardScreen = () => {
           </div>
         </div>
 
-        <div className="flex-grow p-4">
+        <div className="flex-grow p-4 overflow-x-scroll">
           <Outlet />
+          {props.children}
         </div>
       </div>
 
