@@ -29,7 +29,6 @@ const SingleBoardScreen = () => {
     queryKey: ["board", boardId],
     queryFn: async () => {
       const data = await fetchListsnTasks(boardId);
-      console.log(data);
       return data;
     },
   });
@@ -59,6 +58,7 @@ const SingleBoardScreen = () => {
                 title={item.title}
                 key={index}
                 _id={item._id}
+                boardId={boardId}
                 tasks={item.tasks}
               ></Lists>
             ))}
