@@ -38,11 +38,8 @@ const SingleBoardScreen = () => {
       <div className="flex flex-nowrap h-screen ">
         {isLoading
           ? Array.from({ length: 4 }).map((_, index) => (
-              <div className="pt-0 py-2">
-                <div
-                  key={index}
-                  className="bg-gray-200 p-4 m-2 w-60 rounded shadow"
-                >
+              <div className="pt-0 py-2" key={index}>
+                <div className="bg-gray-200 p-4 m-2 w-60 rounded shadow">
                   {Array.from({ length: 5 }).map((__, innerIndex) => (
                     <Skeleton
                       key={innerIndex}
@@ -53,15 +50,19 @@ const SingleBoardScreen = () => {
                 </div>
               </div>
             ))
-          : data.data.responseObject.map((item, index) => (
-              <Lists
-                title={item.title}
-                key={index}
-                _id={item._id}
-                boardId={boardId}
-                tasks={item.tasks}
-              ></Lists>
-            ))}
+          : data.data.responseObject && data.data.responseObject.length > 0 ? (
+          data.data.responseObject.map((item, index) => (
+            <Lists
+              title={item.title}
+              key={index}
+              _id={item._id}
+              boardId={boardId}
+              tasks={item.tasks}
+            ></Lists>
+          ))
+        ) : (
+          <p className="text-gray-500 mx-auto mt-8">Nothing to show here yet.</p>
+        )}
       </div>
     </DragDropContext>
   );

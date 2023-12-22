@@ -26,17 +26,44 @@ const Lists = (props) => {
       });
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["board", props.boardId] });
-      setTaskTitle('');
-      setClickFooter(false)
-      toast.success("The task was created !", {
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ["board", props.boardId] });
+
+      const previousList = queryClient.getQueryData(["board", props.boardId]);
+
+      queryClient.setQueryData(["board", props.boardId], (oldList) => {
+        const updatedList = JSON.parse(JSON.stringify(oldList));
+        const targetCard = updatedList.data.responseObject.find(
+          (card) => card._id === data.cardId
+        );
+        targetCard.tasks.push({
+          title: data.title,
+          owner: data.cardId,
+          status: "incomplete",
+        });
+      });
+      setClickFooter(false);
+
+      return { previousList };
+    },
+
+    onError: async (err, data, context) => {
+      await queryClient.setQueryData(
+        ["board", props.boardId],
+        context.previousList
+      );
+      toast.error("Something went wrong :( Pls Try Again Later", {
         position: toast.POSITION.BOTTOM_RIGHT,
       });
     },
 
-    onError: (error) => {
-      toast.error(error);
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["board", props.boardId],
+      });
+      toast.success("The task was created !", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
     },
   });
 
@@ -89,6 +116,11 @@ const Lists = (props) => {
                       </Draggable>
                     );
                   })}
+                  {createTask.isPending && (
+                    <li className="border border-white rounded bg-white p-2 opacity-40">
+                      <p>{createTask.variables.title}</p>
+                    </li>
+                  )}
                   {droppableProvided.placeholder}
                 </ul>
               );
@@ -106,23 +138,26 @@ const Lists = (props) => {
                   ref={ref}
                   onChange={(e) => setTaskTitle(e.target.value)}
                 ></textarea>
-                <button
-                  type="button"
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                  onClick={handleSubmit}
-                >
-                  Add Card
-                  {createTask.isPending && (
-                    <div className="animate-spin h-5 w-5 border-t-2 border-white rounded-full"></div>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  className="text-gray-600 ml-2"
-                  onClick={() => setClickFooter(false)}
-                >
-                  Cancel
-                </button>
+                <div className="flex">
+                  <button
+                    type="button"
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center mr-2"
+                    onClick={handleSubmit}
+                  >
+                    Add Card
+                    {createTask.isPending && (
+                      <span className="loading loading-spinner loading-sm ml-2"></span>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="text-gray-600 px-4 py-2 rounded"
+                    onClick={() => setClickFooter(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </form>
             </div>
           )}
