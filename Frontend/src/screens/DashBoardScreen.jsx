@@ -57,7 +57,7 @@ const DashBoardScreen = (props) => {
         </div>
       </div>
       <div className="lg:flex lg:flex-row h-screen bg-white">
-        <div className="hidden lg:flex flex-col w-96 bg-gray-200 p-4">
+        <div className="hidden lg:flex flex-col w-80 flex-shrink-0 bg-gray-200 p-4 ">
           <div className="my-5 px-6">
             <ul className="space-y-2">
               <li className="text-center font-body">
@@ -80,7 +80,7 @@ const DashBoardScreen = (props) => {
           </div>
         </div>
 
-        <div className="flex-grow p-4 overflow-x-scroll">
+        <div className="flex-grow p-4 overflow-x-auto overscroll-contain">
           <Outlet />
           {props.children}
         </div>

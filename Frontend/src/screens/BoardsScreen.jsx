@@ -2,16 +2,21 @@ import React, { useEffect, useState, useRef } from "react";
 import Cards from "../components/Cards";
 import axios from "axios";
 import { BASE_BOARDS_URL } from "../../config.js";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { FaPlus } from "react-icons/fa";
+import { Slide, toast } from "react-toastify";
 import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
 
 const BoardsScreen = () => {
   const [openModal, setOpenModal] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+
+  const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
 
   const fetchBoards = async () => {
     return axios.get(`${BASE_BOARDS_URL}/`, {
@@ -37,6 +42,23 @@ const BoardsScreen = () => {
         withCredentials: true,
       });
     },
+    onSuccess: (data) => {
+      console.log(data);
+      queryClient.invalidateQueries(["boards"]);
+      setOpenModal(false);
+      navigate(`/board/${data.data.newBoard._id}`);
+      toast.success(`Board ${data.data.newBoard.title} was created !`, {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide
+      });
+    },
   });
 
   function onCloseModal() {
@@ -44,6 +66,23 @@ const BoardsScreen = () => {
     setTitle("");
     setDescription("");
   }
+
+  const handleCreateClick = () => {
+    if (!title.trim() && !description.trim()) {
+      toast.warn("Please fill in the details", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+      return;
+    }
+
+    const data = {
+      title: title,
+      description: description,
+    };
+
+    console.log(data);
+    createBoard.mutate(data);
+  };
 
   return (
     <>
@@ -86,9 +125,12 @@ const BoardsScreen = () => {
                 />
               </div>
               <div className="w-full">
-                <Button>
-                  {/* <span className="loading loading-spinner mr-2 h-5 w-5"></span> */}
-                  <FaPlus className="mr-2 h-5 w-5" />
+                <Button onClick={handleCreateClick}>
+                  {createBoard.isPending ? (
+                    <span className="loading loading-spinner mr-2 h-5 w-5"></span>
+                  ) : (
+                    <FaPlus className="mr-2 h-5 w-5" />
+                  )}
                   Create
                 </Button>
               </div>

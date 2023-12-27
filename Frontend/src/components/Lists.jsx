@@ -2,10 +2,9 @@ import { React, useState, useRef, useEffect } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { AiOutlinePlus } from "react-icons/ai";
-// import { taskState } from "../store/atoms/Tasks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_TASKS_URL } from "../../config.js";
-import { toast } from "react-toastify";
+import { toast, Slide } from "react-toastify";
 import axios from "axios";
 
 const Lists = (props) => {
@@ -61,13 +60,39 @@ const Lists = (props) => {
       await queryClient.invalidateQueries({
         queryKey: ["board", props.boardId],
       });
-      toast.success("The task was created !", {
-        position: toast.POSITION.BOTTOM_RIGHT,
+    },
+
+    onSuccess: (_, variables) => {
+      toast.success(`Task ${variables.title} was created !`, {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
       });
     },
   });
 
   const handleSubmit = () => {
+    if (!taskTitle.trim()) {
+      toast.error("Title cannot be empty", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+      setClickFooter(false);
+      return;
+    }
     const data = {
       title: taskTitle,
       cardId: props._id,
@@ -82,99 +107,101 @@ const Lists = (props) => {
     }
   }, [clickFooter]);
   return (
-    <div className="pt-0 py-2">
-      <div className="w-72 bg-slate-300 rounded-lg shadow-md p-4 m-2 text-left">
-        <div className="mb-4">
-          <h3>{props.title}</h3>
-        </div>
-        <div className="my-2">
-          <Droppable
-            droppableId={props._id}
-            direction="vertical"
-            key={props._id}
-          >
-            {(droppableProvided) => {
-              return (
-                <ul
-                  className="space-y-2 flex flex-col grow min-h-6"
-                  {...droppableProvided.droppableProps}
-                  ref={droppableProvided.innerRef}
-                >
-                  {props.tasks.map(({ title, _id }, index) => {
-                    return (
-                      <Draggable key={_id} draggableId={_id} index={index}>
-                        {(draggableProvided) => (
-                          <li
-                            className="border border-white rounded bg-white p-2"
-                            ref={draggableProvided.innerRef}
-                            {...draggableProvided.draggableProps}
-                            {...draggableProvided.dragHandleProps}
-                          >
-                            <p>{title}</p>
-                          </li>
-                        )}
-                      </Draggable>
-                    );
-                  })}
-                  {createTask.isPending && (
-                    <li className="border border-white rounded bg-white p-2 opacity-40">
-                      <p>{createTask.variables.title}</p>
-                    </li>
-                  )}
-                  {droppableProvided.placeholder}
-                </ul>
-              );
-            }}
-          </Droppable>
-        </div>
-        <div className="mt-4">
-          {clickFooter && (
-            <div className="mt-4">
-              <form className="font-body">
-                <textarea
-                  type="text"
-                  className="w-full border p-2 mb-4 h-20 border-white rounded focus:outline-none text-start resize-none"
-                  placeholder="Enter a title for this Task..."
-                  ref={ref}
-                  onChange={(e) => setTaskTitle(e.target.value)}
-                ></textarea>
-                <div className="flex">
-                  <button
-                    type="button"
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center mr-2"
-                    onClick={handleSubmit}
-                  >
-                    Add Card
-                    {createTask.isPending && (
-                      <span className="loading loading-spinner loading-sm ml-2"></span>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="text-gray-600 px-4 py-2 rounded"
-                    onClick={() => setClickFooter(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-          {!clickFooter && (
-            <button
-              className="hover:bg-blue-300 p-2 pl-4 text-left w-5/6 font-body border border-slate-300 rounded-xl"
-              onClick={() => setClickFooter(true)}
+    <>
+      <div className="pt-0 py-2">
+        <div className="w-72 bg-slate-300 rounded-lg shadow-md p-4 m-2 text-left">
+          <div className="mb-4">
+            <h3>{props.title}</h3>
+          </div>
+          <div className="my-2">
+            <Droppable
+              droppableId={props._id}
+              direction="vertical"
+              key={props._id}
             >
-              <span className="m-1">
-                <AiOutlinePlus className="inline" />
-              </span>
-              Add a Task
-            </button>
-          )}
+              {(droppableProvided) => {
+                return (
+                  <ul
+                    className="space-y-2 flex flex-col grow min-h-6"
+                    {...droppableProvided.droppableProps}
+                    ref={droppableProvided.innerRef}
+                  >
+                    {props.tasks.map(({ title, _id }, index) => {
+                      return (
+                        <Draggable key={_id} draggableId={_id} index={index}>
+                          {(draggableProvided) => (
+                            <li
+                              className="border border-white rounded bg-white p-2"
+                              ref={draggableProvided.innerRef}
+                              {...draggableProvided.draggableProps}
+                              {...draggableProvided.dragHandleProps}
+                            >
+                              <p>{title}</p>
+                            </li>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {createTask.isPending && (
+                      <li className="border border-white rounded bg-white p-2 opacity-40">
+                        <p>{createTask.variables.title}</p>
+                      </li>
+                    )}
+                    {droppableProvided.placeholder}
+                  </ul>
+                );
+              }}
+            </Droppable>
+          </div>
+          <div className="mt-4">
+            {clickFooter && (
+              <div className="mt-4">
+                <form className="font-body">
+                  <textarea
+                    type="text"
+                    className="w-full border p-2 mb-4 h-20 border-white rounded focus:outline-none text-start resize-none"
+                    placeholder="Enter a title for this Task..."
+                    ref={ref}
+                    onChange={(e) => setTaskTitle(e.target.value)}
+                  ></textarea>
+                  <div className="flex">
+                    <button
+                      type="button"
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center mr-2"
+                      onClick={handleSubmit}
+                    >
+                      Add Task
+                      {createTask.isPending && (
+                        <span className="loading loading-spinner loading-sm ml-2"></span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="text-gray-600 px-4 py-2 rounded"
+                      onClick={() => setClickFooter(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+            {!clickFooter && (
+              <button
+                className="hover:bg-blue-300 p-2 pl-4 text-left w-5/6 font-body border border-slate-300 rounded-xl"
+                onClick={() => setClickFooter(true)}
+              >
+                <span className="m-1">
+                  <AiOutlinePlus className="inline" />
+                </span>
+                Add a Task
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
