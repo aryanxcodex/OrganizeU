@@ -19,10 +19,117 @@ const SingleBoardScreen = () => {
 
   const queryClient = useQueryClient();
 
+  const updateTaskOrder = useMutation({
+    mutationKey: ["updateTaskOrder", boardId],
+    mutationFn: (data) => {
+      return axios.put(`${BASE_CARDS_URL}/change-task-order`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+    },
+
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ["board", boardId] });
+
+      const previousList = queryClient.getQueryData(["board", boardId]);
+
+      console.log(previousList);
+
+      // Modifying the cache for quick update on the UI (Optimistic Updates)
+      queryClient.setQueryData(["board", boardId], (oldList) => {
+        const cardsArray = [...oldList.data.responseObject];
+        const sourceCardIndex = cardsArray.findIndex(
+          (card) => card._id.toString() === data.sourceId.toString()
+        );
+        console.log(sourceCardIndex);
+        const destinationCardIndex = cardsArray.findIndex(
+          (card) => card._id.toString() === data.destinationId.toString()
+        );
+        console.log(destinationCardIndex);
+
+        const [reorderedItem] = cardsArray[sourceCardIndex].tasks.splice(
+          data.sourceIndex,
+          1
+        );
+        console.log(reorderedItem);
+        cardsArray[destinationCardIndex].tasks.splice(
+          data.destinationIndex,
+          0,
+          reorderedItem
+        );
+
+        return {
+          ...oldList,
+          data: {
+            ...oldList.data,
+            responseObject: cardsArray,
+          },
+        };
+      });
+
+      return { previousList };
+    },
+
+    onError: async (err, data, context) => {
+      //Restoring server state upon error
+      await queryClient.setQueryData(["board", boardId], context.previousList);
+      toast.error("Something went wrong :( Pls Try Again Later", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    },
+
+    onSettled: async () => {
+      //Invalidating the query
+      await queryClient.invalidateQueries({
+        queryKey: ["board", boardId],
+      });
+    },
+
+    onSuccess: (_, variables) => {
+      toast.success("Changes Updated", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+    },
+  });
+
+  //Gets triggered when a task swap happens
   function handleOnDragEnd(result) {
     console.log(result);
+
+    if (!result.destination) return;
+
+    if (
+      result.source.droppableId === result.destination.droppableId &&
+      result.source.index === result.destination.index
+    ) {
+      return;
+    }
+
+    const data = {
+      boardId: boardId,
+      sourceId: result.source.droppableId,
+      sourceIndex: result.source.index,
+      destinationId: result.destination.droppableId,
+      destinationIndex: result.destination.index,
+      taskId: result.draggableId,
+    };
+
+    updateTaskOrder.mutate(data);
+
+    console.log(data);
   }
 
+  //API call for fetching cards and tasks
   const fetchListsnTasks = async () => {
     return axios.get(`${BASE_CARDS_URL}/${boardId}`, {
       headers: {
@@ -32,6 +139,7 @@ const SingleBoardScreen = () => {
     });
   };
 
+  //Query for fetching all the cards and tasks of the board
   const { isLoading, data } = useQuery({
     queryKey: ["board", boardId],
     queryFn: async () => {
@@ -40,6 +148,7 @@ const SingleBoardScreen = () => {
     },
   });
 
+  //Mutation for creating a Card in this specific board
   const createCard = useMutation({
     mutationKey: ["createCard", boardId],
     mutationFn: (data) => {
@@ -52,27 +161,17 @@ const SingleBoardScreen = () => {
     },
 
     onMutate: async (data) => {
-      console.log(data);
       await queryClient.cancelQueries({ queryKey: ["board", boardId] });
 
       const previousList = queryClient.getQueryData(["board", boardId]);
 
-      console.log(previousList);
-
-      queryClient.setQueryData(["board", boardId], (oldList) => {
-        const updatedList = JSON.parse(JSON.stringify(oldList));
-        updatedList.data.responseObject.push({
-          title: data.title,
-          owner: data.boardId,
-          tasks: [],
-        });
-      });
       setClickFooter(false);
 
       return { previousList };
     },
 
     onError: async (err, data, context) => {
+      //Restoring server state upon error
       await queryClient.setQueryData(["board", boardId], context.previousList);
       toast.error("Something went wrong :( Pls Try Again Later", {
         position: toast.POSITION.BOTTOM_RIGHT,
@@ -80,6 +179,7 @@ const SingleBoardScreen = () => {
     },
 
     onSettled: async () => {
+      //Invalidating the query
       await queryClient.invalidateQueries({
         queryKey: ["board", boardId],
       });

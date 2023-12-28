@@ -43,7 +43,7 @@ const BoardsScreen = () => {
       });
     },
     onSuccess: (data) => {
-      console.log(data);
+      // console.log(data);
       queryClient.invalidateQueries(["boards"]);
       setOpenModal(false);
       navigate(`/board/${data.data.newBoard._id}`);

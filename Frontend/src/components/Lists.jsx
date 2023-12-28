@@ -30,17 +30,6 @@ const Lists = (props) => {
 
       const previousList = queryClient.getQueryData(["board", props.boardId]);
 
-      queryClient.setQueryData(["board", props.boardId], (oldList) => {
-        const updatedList = JSON.parse(JSON.stringify(oldList));
-        const targetCard = updatedList.data.responseObject.find(
-          (card) => card._id === data.cardId
-        );
-        targetCard.tasks.push({
-          title: data.title,
-          owner: data.cardId,
-          status: "incomplete",
-        });
-      });
       setClickFooter(false);
 
       return { previousList };

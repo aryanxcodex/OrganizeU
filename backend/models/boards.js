@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 import tasks from "./tasks.js";
 import { connectDB } from "../config/db.js";
 
-connectDB();
+// connectDB();
 
 const boardSchema = mongoose.Schema({
   title: {
