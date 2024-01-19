@@ -1,14 +1,19 @@
 import { React, useState, useRef, useEffect, createElement } from "react";
 import { useParams } from "react-router-dom";
+import { MdOutlineArrowDropDown } from "react-icons/md";
+import { IoMdAdd } from "react-icons/io";
+import { CiSettings } from "react-icons/ci";
 import Lists from "../components/Lists.jsx";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { BASE_CARDS_URL } from "../../config.js";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
-import { Button, List } from "flowbite-react";
+import { Button, Navbar, Dropdown } from "flowbite-react";
 import { toast, Slide } from "react-toastify";
 import { DragDropContext } from "react-beautiful-dnd";
+import { useRecoilValue } from "recoil";
+import { selectedBoardNameState } from "../store/atoms/Boards.js";
 
 const SingleBoardScreen = () => {
   const { boardId } = useParams();
@@ -16,6 +21,7 @@ const SingleBoardScreen = () => {
   const [clickFooter, setClickFooter] = useState(false);
   const [cardTitle, setCardTitle] = useState("");
   const ref = useRef(null);
+  const selectedBoardName = useRecoilValue(selectedBoardNameState);
 
   const queryClient = useQueryClient();
 
@@ -231,8 +237,34 @@ const SingleBoardScreen = () => {
 
   return (
     <>
+      <div className="navbar bg-slate-300 shadow-lg rounded-lg">
+        <div className="flex-none"></div>
+        <div className="flex-1 p-2">
+          <Dropdown label={selectedBoardName} inline>
+            <Dropdown.Item icon={IoMdAdd}>Add Member</Dropdown.Item>
+            <Dropdown.Item icon={CiSettings}>Settings</Dropdown.Item>
+          </Dropdown>
+        </div>
+        <div className="flex-none">
+          <button className="btn btn-square btn-ghost">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              className="inline-block w-5 h-5 stroke-current"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
       <DragDropContext onDragEnd={handleOnDragEnd}>
-        <div className="flex flex-nowrap h-screen ">
+        <div className="flex flex-nowrap h-screen overflow-auto">
           {isLoading
             ? Array.from({ length: 4 }).map((_, index) => (
                 <div className="pt-0 py-2" key={index}>

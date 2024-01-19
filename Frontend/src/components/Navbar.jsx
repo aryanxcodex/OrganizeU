@@ -14,7 +14,7 @@ const Navbar = (props) => {
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content flex flex-col">
         {/* Navbar */}
-        <div className="w-full navbar bg-white shadow-lg sticky top-0">
+        <div className="w-full navbar bg-white shadow-lg sticky top-0 z-10">
           <div className="flex-none lg:hidden">
             <label htmlFor="my-drawer-3" className="btn btn-square btn-ghost">
               <HiBars3 className="stroke-1 stroke-blue-700"/>

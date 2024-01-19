@@ -11,7 +11,7 @@ const DashBoardScreen = (props) => {
 
   return (
     <>
-      <div className="w-full navbar bg-white shadow-lg sticky top-0">
+      <div className="w-full navbar bg-white shadow-lg sticky top-0 z-10">
         <div className="flex-1">
           <div className="flex-none lg:hidden">
             <label htmlFor="my-drawer-2" className="btn btn-square btn-ghost">
@@ -63,7 +63,7 @@ const DashBoardScreen = (props) => {
               <li className="text-center font-body">
                 <Link
                   to="/dashboard/boards"
-                  className="text-blue-500 hover:bg-blue-500 hover:text-white rounded-full px-4 py-2 transition-all duration-300 block"
+                  className="bg-blue-500 text-white rounded-full px-4 py-2 transition-all duration-300 block"
                 >
                   My Boards
                 </Link>
@@ -71,7 +71,7 @@ const DashBoardScreen = (props) => {
               <li className="text-center font-body">
                 <Link
                   to="#"
-                  className="text-blue-500 hover:bg-blue-500 hover:text-white rounded-full px-4 py-2 transition-all duration-300 block"
+                  className=" bg-blue-500 text-white rounded-full px-4 py-2 transition-all duration-300 block"
                 >
                   Templates
                 </Link>

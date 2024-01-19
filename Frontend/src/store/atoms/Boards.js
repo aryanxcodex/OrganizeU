@@ -1,5 +1,10 @@
 import { atom } from "recoil";
+import { recoilPersist } from "recoil-persist";
 
-export const boardState = atom({
-    
+const { persistAtom } = recoilPersist();
+
+export const selectedBoardNameState = atom({
+  key: "selectedBoardNameState",
+  default: "",
+  effects_UNSTABLE: [persistAtom],
 });

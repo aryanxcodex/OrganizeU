@@ -4,6 +4,8 @@ import axios from "axios";
 import { BASE_BOARDS_URL } from "../../config.js";
 import { Link, useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
+import { useRecoilState } from "recoil";
+import { selectedBoardNameState } from "../store/atoms/Boards.js";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { FaPlus } from "react-icons/fa";
 import { Slide, toast } from "react-toastify";
@@ -13,6 +15,9 @@ const BoardsScreen = () => {
   const [openModal, setOpenModal] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedBoardName, setSelectedBoardName] = useRecoilState(
+    selectedBoardNameState
+  );
 
   const navigate = useNavigate();
 
@@ -56,7 +61,7 @@ const BoardsScreen = () => {
         draggable: true,
         progress: undefined,
         theme: "light",
-        transition: Slide
+        transition: Slide,
       });
     },
   });
@@ -86,7 +91,7 @@ const BoardsScreen = () => {
 
   return (
     <>
-      <div className="flex flex-wrap justify-start gap-6 p-6 overflow-scroll overflow-x-hidden overflow-y-hidden">
+      <div className="flex flex-wrap justify-start gap-6 p-6 overflow-x-hidden mt-2">
         <Modal
           show={openModal}
           size="md"
@@ -142,7 +147,13 @@ const BoardsScreen = () => {
               <Skeleton height={75} key={index} containerClassName="flex-1" />
             ))
           : data.data.boards.map((item, index) => (
-              <Link to={`/board/${item._id}`} key={index}>
+              <Link
+                to={`/board/${item._id}`}
+                key={index}
+                onClick={() => {
+                  setSelectedBoardName(item.title);
+                }}
+              >
                 <Cards title={item.title} />
               </Link>
             ))}
