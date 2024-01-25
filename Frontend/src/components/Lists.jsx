@@ -111,7 +111,7 @@ const Lists = (props) => {
               {(droppableProvided) => {
                 return (
                   <ul
-                    className="space-y-2 flex flex-col grow min-h-6"
+                    className="space-y-2 flex flex-col grow min-h-6 max-h-96 overscroll-none overflow-auto"
                     {...droppableProvided.droppableProps}
                     ref={droppableProvided.innerRef}
                   >

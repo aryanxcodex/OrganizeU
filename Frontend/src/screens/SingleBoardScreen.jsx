@@ -1,15 +1,16 @@
-import { React, useState, useRef, useEffect, createElement } from "react";
+import { React, useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { MdOutlineArrowDropDown } from "react-icons/md";
+import { AiOutlineLoading } from "react-icons/ai";
 import { IoMdAdd } from "react-icons/io";
 import { CiSettings } from "react-icons/ci";
 import Lists from "../components/Lists.jsx";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { BASE_CARDS_URL } from "../../config.js";
+import { BASE_CARDS_URL, BASE_USERS_URL } from "../../config.js";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
+import { RiMailSendFill } from "react-icons/ri";
 import Skeleton from "react-loading-skeleton";
-import { Button, Navbar, Dropdown } from "flowbite-react";
+import { Button, Navbar, Dropdown, Modal, FloatingLabel } from "flowbite-react";
 import { toast, Slide } from "react-toastify";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useRecoilValue } from "recoil";
@@ -20,11 +21,17 @@ const SingleBoardScreen = () => {
 
   const [clickFooter, setClickFooter] = useState(false);
   const [cardTitle, setCardTitle] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [validEmail, setValidEmail] = useState(false);
+  const [loading, setLoading] = useState(false);
   const ref = useRef(null);
   const selectedBoardName = useRecoilValue(selectedBoardNameState);
 
   const queryClient = useQueryClient();
 
+  // ---------------------------------------------------------------------------------------------------------------
+  // Mutation for updating the task order
   const updateTaskOrder = useMutation({
     mutationKey: ["updateTaskOrder", boardId],
     mutationFn: (data) => {
@@ -94,17 +101,17 @@ const SingleBoardScreen = () => {
     },
 
     onSuccess: (_, variables) => {
-      toast.success("Changes Updated", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Slide,
-      });
+      // toast.success("Changes Updated", {
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: true,
+      //   closeOnClick: true,
+      //   pauseOnHover: true,
+      //   draggable: true,
+      //   progress: undefined,
+      //   theme: "light",
+      //   transition: Slide,
+      // });
     },
   });
 
@@ -135,6 +142,8 @@ const SingleBoardScreen = () => {
     console.log(data);
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------
+
   //API call for fetching cards and tasks
   const fetchListsnTasks = async () => {
     return axios.get(`${BASE_CARDS_URL}/${boardId}`, {
@@ -145,6 +154,7 @@ const SingleBoardScreen = () => {
     });
   };
 
+  // -----------------------------------------------------------------------------------------------------------------------------
   //Query for fetching all the cards and tasks of the board
   const { isLoading, data } = useQuery({
     queryKey: ["board", boardId],
@@ -153,7 +163,7 @@ const SingleBoardScreen = () => {
       return data;
     },
   });
-
+  // ------------------------------------------------------------------------------------------------------------------------------
   //Mutation for creating a Card in this specific board
   const createCard = useMutation({
     mutationKey: ["createCard", boardId],
@@ -206,6 +216,56 @@ const SingleBoardScreen = () => {
     },
   });
 
+  // -----------------------------------------------------------------------------------------------------------------------------
+  // Query for fetching the invitation link
+
+  const sendInvitation = useMutation({
+    mutationKey: ["invitation", emailInput],
+    mutationFn: (data) => {
+      return axios.post(`${BASE_USERS_URL}/createInvitation`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+    },
+
+    onError: () => {
+      setOpenModal(false);
+      setLoading(false);
+
+      toast.error("Something went wrong :(", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+    },
+
+    onSuccess: (_, variables) => {
+      setOpenModal(false);
+      setLoading(false);
+
+      toast.success(`Invitation was sent`, {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+    },
+  });
+
+  // -----------------------------------------------------------------------------------------------------------------------------
   useEffect(() => {
     if (clickFooter) {
       ref.current.focus();
@@ -235,13 +295,60 @@ const SingleBoardScreen = () => {
     createCard.mutate(data);
   };
 
+  const validateEmail = (e) => {
+    const isValidEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+    if (e.target?.value && e.target.value.match(isValidEmail)) {
+      setValidEmail(true);
+      setEmailInput(e.target.value);
+    } else {
+      setEmailInput(e.target.value);
+      setValidEmail(false);
+    }
+  };
+
+  const handleSendInvitation = () => {
+    const data = {
+      boardId: boardId,
+      emailId: emailInput,
+    };
+
+    sendInvitation.mutate(data);
+    setLoading(true);
+  };
+
   return (
     <>
       <div className="navbar bg-slate-300 shadow-lg rounded-lg">
         <div className="flex-none"></div>
         <div className="flex-1 p-2">
+          <Modal show={openModal} onClose={() => setOpenModal(false)}>
+            <Modal.Header>Invite to Board {selectedBoardName}</Modal.Header>
+            <Modal.Body>
+              <FloatingLabel
+                variant="outlined"
+                label="Email"
+                onChange={validateEmail}
+                value={emailInput}
+              />
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                onClick={handleSendInvitation}
+                disabled={!validEmail}
+                processingSpinner={
+                  <AiOutlineLoading className="h-6 w-6 animate-spin" />
+                }
+                isProcessing={loading}
+              >
+                <RiMailSendFill className="mr-2 h-5 w-5" />
+                Send Invitation
+              </Button>
+            </Modal.Footer>
+          </Modal>
           <Dropdown label={selectedBoardName} inline>
-            <Dropdown.Item icon={IoMdAdd}>Add Member</Dropdown.Item>
+            <Dropdown.Item icon={IoMdAdd} onClick={() => setOpenModal(true)}>
+              Add Member
+            </Dropdown.Item>
             <Dropdown.Item icon={CiSettings}>Settings</Dropdown.Item>
           </Dropdown>
         </div>
@@ -318,9 +425,6 @@ const SingleBoardScreen = () => {
                       onClick={handleSubmit}
                     >
                       Add Card
-                      {/* {createTask.isPending && (
-                        <span className="loading loading-spinner loading-sm ml-2"></span>
-                      )} */}
                     </button>
 
                     <button

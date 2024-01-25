@@ -1,8 +1,9 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/users.js";
-import confirmationMail from "../utils/confirmationMail.js";
-import generateToken from "../utils/generateToken.js";
+import { confirmationMail, invitationMail } from "../utils/confirmationMail.js";
+import { generateToken, generateInviteToken } from "../utils/generateToken.js";
 import jwt from "jsonwebtoken";
+import Boards from "../models/boards.js";
 
 //@desc AuthUser/ set Token
 //route POST /api/users/auth
@@ -14,7 +15,7 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPasswords(password))) {
-    if(!user.isVerified) {
+    if (!user.isVerified) {
       res.status(400);
       throw new Error("Please Verify your email first");
     }
@@ -158,6 +159,25 @@ const confirmUser = asyncHandler(async (req, res) => {
   }
 });
 
+const sendInvitation = asyncHandler(async (req, res) => {
+  const { boardId, emailId } = req.body;
+  const userId = req.user._id;
+
+  const board = await Boards.findById(boardId);
+
+  const inviteToken = generateInviteToken(userId, boardId, emailId);
+
+  const data = {
+    invitee_name: req.user.name,
+    board_name: board.title,
+    invitation_link: `http://localhost:5173/invite?token=${inviteToken}`,
+  };
+
+  invitationMail(emailId, data);
+
+  res.status(200).json({ message: "Invitation sent successfully" });
+});
+
 export {
   loginUser,
   registerUser,
@@ -165,4 +185,5 @@ export {
   getUserProfile,
   updateUserProfile,
   confirmUser,
+  sendInvitation,
 };

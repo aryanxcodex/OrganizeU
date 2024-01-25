@@ -29,5 +29,3 @@ OrganizeU is a powerful and user-friendly collaborative task management system d
   - Mongoose: An ODM (Object Data Modeling) library for MongoDB.
 
 - **Real-Time Communication**: WebSocket technology for real-time collaboration features.
-
-

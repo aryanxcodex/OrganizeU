@@ -4,12 +4,13 @@ import axios from "axios";
 import { BASE_BOARDS_URL } from "../../config.js";
 import { Link, useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { selectedBoardNameState } from "../store/atoms/Boards.js";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { FaPlus } from "react-icons/fa";
 import { Slide, toast } from "react-toastify";
-import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
+import { userState } from "../store/atoms/User";
+import { Button, Label, Modal, TextInput } from "flowbite-react";
 
 const BoardsScreen = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -18,6 +19,7 @@ const BoardsScreen = () => {
   const [selectedBoardName, setSelectedBoardName] = useRecoilState(
     selectedBoardNameState
   );
+  const { userId } = useRecoilValue(userState);
 
   const navigate = useNavigate();
 
@@ -51,8 +53,22 @@ const BoardsScreen = () => {
       // console.log(data);
       queryClient.invalidateQueries(["boards"]);
       setOpenModal(false);
+      setSelectedBoardName(data.data.newBoard.title);
       navigate(`/board/${data.data.newBoard._id}`);
       toast.success(`Board ${data.data.newBoard.title} was created !`, {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+    },
+    onError: () => {
+      toast.error(`Something went wrong ! Please try again later`, {
         position: "top-center",
         autoClose: 2000,
         hideProgressBar: true,
@@ -89,8 +105,23 @@ const BoardsScreen = () => {
     createBoard.mutate(data);
   };
 
+  const ownerBoards = data?.data?.boards.filter((board) => {
+    return board.members.some(
+      (member) => member.user === userId && member.role === "owner"
+    );
+  });
+
+  const memberBoards = data?.data?.boards.filter((board) => {
+    return board.members.some(
+      (member) => member.user === userId && member.role !== "owner"
+    );
+  });
+
   return (
     <>
+      <div className="text-center m-2">
+        <h2 className="font-bold font-body text-2xl">Boards Owned By You</h2>
+      </div>
       <div className="flex flex-wrap justify-start gap-6 p-6 overflow-x-hidden mt-2">
         <Modal
           show={openModal}
@@ -146,7 +177,7 @@ const BoardsScreen = () => {
           ? Array.from({ length: 5 }).map((_, index) => (
               <Skeleton height={75} key={index} containerClassName="flex-1" />
             ))
-          : data.data.boards.map((item, index) => (
+          : ownerBoards.map((item, index) => (
               <Link
                 to={`/board/${item._id}`}
                 key={index}
@@ -161,6 +192,32 @@ const BoardsScreen = () => {
           <FaPlus className="mr-2 h-5 w-5" />
           Create New Board
         </Button>
+      </div>
+      <div className="text-center m-2">
+        <h2 className="font-bold font-body text-2xl">
+          Boards you are a member of
+        </h2>
+      </div>
+      <div className="flex flex-wrap justify-start gap-6 p-6 overflow-x-hidden mt-2">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, index) => (
+            <Skeleton height={75} key={index} containerClassName="flex-1" />
+          ))
+        ) : memberBoards.length > 0 ? (
+          memberBoards.map((item, index) => (
+            <Link
+              to={`/board/${item._id}`}
+              key={index}
+              onClick={() => {
+                setSelectedBoardName(item.title);
+              }}
+            >
+              <Cards title={item.title} />
+            </Link>
+          ))
+        ) : (
+          <p className="font-body">No boards you are a member of :(</p>
+        )}
       </div>
     </>
   );

@@ -4,4 +4,27 @@
 @tailwind components;
 @tailwind utilities;
 
+::-webkit-scrollbar {
+  width: 12px;
+}
 
+::-webkit-scrollbar-track {
+  background-color: #fff; /* White background */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #808080; /* Grey thumb */
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #666; /* Slightly darker grey on hover */
+}
+
+/* For Firefox */
+scrollbar-width: thin;
+scrollbar-color: #808080 #fff;
+
+/* For IE and Edge */
+-ms-overflow-style: none;
+scrollbar-color: #808080 #fff;

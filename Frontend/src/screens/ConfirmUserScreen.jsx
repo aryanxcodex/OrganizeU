@@ -25,7 +25,12 @@ const ConfirmUserScreen = () => {
           .get(`${BASE_USERS_URL}/confirm/${token}`)
           .then((res) => {
             setLoading(false);
-            setUser({ username: res.data.name, email: res.data.email, isLoggedin: true });
+            setUser({
+              userId: res.data._id,
+              username: res.data.name,
+              email: res.data.email,
+              isLoggedin: true,
+            });
           })
           .catch((error) => {
             if (error.response) {

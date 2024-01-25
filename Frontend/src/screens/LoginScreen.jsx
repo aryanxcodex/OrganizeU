@@ -39,6 +39,7 @@ const LoginScreen = () => {
       .then((res) => {
         setLoading(false);
         setUser({
+          userId: res.data._id,
           username: res.data.name,
           email: res.data.email,
           isLoggedin: true,
