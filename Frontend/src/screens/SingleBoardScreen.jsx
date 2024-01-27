@@ -10,7 +10,13 @@ import axios from "axios";
 import { FaPlus } from "react-icons/fa";
 import { RiMailSendFill } from "react-icons/ri";
 import Skeleton from "react-loading-skeleton";
-import { Button, Navbar, Dropdown, Modal, FloatingLabel } from "flowbite-react";
+import {
+  Button,
+  Spinner,
+  Dropdown,
+  Modal,
+  FloatingLabel,
+} from "flowbite-react";
 import { toast, Slide } from "react-toastify";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useRecoilValue } from "recoil";
@@ -24,6 +30,7 @@ const SingleBoardScreen = () => {
   const [openModal, setOpenModal] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [validEmail, setValidEmail] = useState(false);
+  const [isLoadingEmail, setLoadingEmail] = useState(false);
   const [loading, setLoading] = useState(false);
   const ref = useRef(null);
   const selectedBoardName = useRecoilValue(selectedBoardNameState);
@@ -296,14 +303,21 @@ const SingleBoardScreen = () => {
   };
 
   const validateEmail = (e) => {
-    const isValidEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-    if (e.target?.value && e.target.value.match(isValidEmail)) {
-      setValidEmail(true);
-      setEmailInput(e.target.value);
-    } else {
-      setEmailInput(e.target.value);
-      setValidEmail(false);
-    }
+    setEmailInput(e.target.value);
+
+    setTimeout(() => {}, 1000);
+
+    setLoadingEmail(true);
+
+    setTimeout(() => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (e.target?.value && e.target.value.match(emailRegex)) {
+        setValidEmail(true);
+      } else {
+        setValidEmail(false);
+      }
+      setLoadingEmail(false);
+    }, 1000);
   };
 
   const handleSendInvitation = () => {
@@ -329,6 +343,19 @@ const SingleBoardScreen = () => {
                 label="Email"
                 onChange={validateEmail}
                 value={emailInput}
+                helperText={
+                  isLoadingEmail ? (
+                    <Spinner
+                      aria-label="Extra small spinner example"
+                      size="xs"
+                    />
+                  ) : validEmail ? (
+                    "Looks Good !"
+                  ) : (
+                    "Invalid Email"
+                  )
+                }
+                color={validEmail ? "success" : "error"}
               />
             </Modal.Body>
             <Modal.Footer>
@@ -371,7 +398,7 @@ const SingleBoardScreen = () => {
         </div>
       </div>
       <DragDropContext onDragEnd={handleOnDragEnd}>
-        <div className="flex flex-nowrap h-screen overflow-auto">
+        <div className="flex flex-nowrap h-screen overflow-y-auto">
           {isLoading
             ? Array.from({ length: 4 }).map((_, index) => (
                 <div className="pt-0 py-2" key={index}>

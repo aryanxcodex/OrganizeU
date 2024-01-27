@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 import User from "../models/users.js";
 import { confirmationMail, invitationMail } from "../utils/confirmationMail.js";
 import { generateToken, generateInviteToken } from "../utils/generateToken.js";
-import jwt from "jsonwebtoken";
+import jwt, { decode } from "jsonwebtoken";
 import Boards from "../models/boards.js";
 
 //@desc AuthUser/ set Token
@@ -178,6 +178,41 @@ const sendInvitation = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Invitation sent successfully" });
 });
 
+const checkUserInvitation = asyncHandler(async (req, res) => {
+  const { token } = req.body;
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const { userId, emailId, boardId } = decoded;
+
+      const userExists = await User.findOne({ email: emailId });
+
+      if (userExists) {
+        res.status(200).json({
+          userExists: true,
+          emailId,
+          boardId,
+          userId,
+        });
+      } else {
+        res.status(200).json({
+          userExists: false,
+          emailId,
+          boardId,
+          userId,
+        });
+      }
+    } catch (error) {
+      res.status(401);
+      throw new Error(error.message);
+    }
+  } else {
+    res.status(401);
+    throw new Error("User not authorised");
+  }
+});
+
 export {
   loginUser,
   registerUser,
@@ -186,4 +221,5 @@ export {
   updateUserProfile,
   confirmUser,
   sendInvitation,
+  checkUserInvitation,
 };

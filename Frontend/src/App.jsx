@@ -12,6 +12,7 @@ import SingleBoardScreen from "./screens/SingleBoardScreen.jsx";
 import { Suspense } from "react";
 import Skeleton from "react-loading-skeleton";
 import Loader from "./components/Loader.jsx";
+import InviteScreen from "./screens/InviteScreen.jsx";
 
 const router = createBrowserRouter([
   {
@@ -29,7 +30,7 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: (
-      <PrivateRoute>
+      <PrivateRoute redirectTo="/">
         <DashBoardScreen />
       </PrivateRoute>
     ),
@@ -43,7 +44,7 @@ const router = createBrowserRouter([
   {
     path: "/board/:boardId",
     element: (
-      <PrivateRoute>
+      <PrivateRoute redirectTo="/">
         <DashBoardScreen>
           <SingleBoardScreen />
         </DashBoardScreen>
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginScreen />,
+  },
+  {
+    path: "/invite",
+    element: <InviteScreen />,
   },
 ]);
 

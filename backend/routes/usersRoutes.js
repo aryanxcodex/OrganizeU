@@ -8,6 +8,7 @@ import {
   updateUserProfile,
   confirmUser,
   sendInvitation,
+  checkUserInvitation,
 } from "../controllers/usersController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -20,5 +21,6 @@ router
   .put(protect, updateUserProfile);
 router.get("/confirm/:id", confirmUser);
 router.route("/createInvitation").post(protect, sendInvitation);
+router.route("/checkUserInvitation").post(protect, checkUserInvitation);
 
 export default router;
