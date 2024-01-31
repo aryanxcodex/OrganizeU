@@ -80,7 +80,7 @@ const DashBoardScreen = (props) => {
           </div>
         </div>
 
-        <div className="flex-grow p-4 overflow-x-auto overscroll-contain">
+        <div className="flex-grow p-4 overflow-hidden">
           <Outlet />
           {props.children}
         </div>

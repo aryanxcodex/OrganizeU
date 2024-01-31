@@ -3,26 +3,32 @@ import React, { useEffect, useState } from "react";
 import { BASE_USERS_URL } from "../../config.js";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
+import { toast, Slide } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 import { inviteState } from "../store/atoms/Invite.js";
-import { Button, Spinner, Label, TextInput } from "flowbite-react";
+import { Button, Label, TextInput } from "flowbite-react";
 import { IoIosMail } from "react-icons/io";
 import { FaUser } from "react-icons/fa";
+import { AiOutlineLoading } from "react-icons/ai";
 import { TbPasswordFingerprint } from "react-icons/tb";
+import { userState } from "../store/atoms/User.js";
 
 const InviteScreen = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [validEmail, setValidEmail] = useState(false);
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState(true);
+  const [isMutationLoading, setMutationLoading] = useState(false);
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [isLoadingEmail, setLoadingEmail] = useState(false);
   const [password, setPassword] = useState("");
 
   const token = searchParams.get("token");
 
   const invite = useRecoilValue(inviteState);
+
+  const setUser = useSetRecoilState(userState);
+
+  const navigate = useNavigate();
 
   const setInviteState = useSetRecoilState(inviteState);
 
@@ -49,6 +55,7 @@ const InviteScreen = () => {
     },
 
     onError: () => {
+      setLoading(false);
       setError(true);
     },
   });
@@ -57,23 +64,99 @@ const InviteScreen = () => {
     verifyToken.mutate({ token });
   }, []);
 
-  const validateEmail = (e) => {
-    setEmail(e.target.value);
+  //Login Click Mutation
 
-    setTimeout(() => {}, 1000);
+  // const onboardInvitedUser = useMutation({
+  //   mutationKey: ["onboardInvitedUser"],
+  //   mutationFn: (data) => {
+  //     return axios.post(`${BASE_USERS_URL}/onboardInvitedUser`, data, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       withCredentials: true,
+  //     });
+  //   },
 
-    setLoadingEmail(true);
+  //   onSuccess: (data) => {
+  // setUser({
+  //   userId: data.data._id,
+  //   username: data.data.name,
+  //   email: data.data.email,
+  //   isLoggedin: true,
+  // });
+  //     toast.success(`Success !`, {
+  //       position: "top-center",
+  //       autoClose: 2000,
+  //       hideProgressBar: true,
+  //       closeOnClick: true,
+  //       pauseOnHover: true,
+  //       draggable: true,
+  //       progress: undefined,
+  //       theme: "light",
+  //       transition: Slide,
+  //     });
+  //   },
+  //   onError: () => {
+  //     toast.error("Something went wrong :(", {
+  //       position: "top-center",
+  //       autoClose: 2000,
+  //       hideProgressBar: true,
+  //       closeOnClick: true,
+  //       pauseOnHover: true,
+  //       draggable: true,
+  //       progress: undefined,
+  //       theme: "light",
+  //       transition: Slide,
+  //     });
+  //   },
+  // });
 
-    setTimeout(() => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (e.target?.value && e.target.value.match(emailRegex)) {
-        setValidEmail(true);
-      } else {
-        setValidEmail(false);
-      }
-      setLoadingEmail(false);
-    }, 1000);
+  const onboardInvitedUser = async (e) => {
+    e.preventDefault();
+
+    setMutationLoading(true);
+
+    const data = {
+      userExists: invite.userExists,
+      emailId: invite.emailId,
+      userId: invite.userId,
+      boardId: invite.boardId,
+      username: username,
+      password: password,
+    };
+
+    await axios
+      .post(`${BASE_USERS_URL}/onboardInvitedUser`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      })
+      .then((res) => {
+        setMutationLoading(false);
+        setUser({
+          userId: res.data._id,
+          username: res.data.name,
+          email: res.data.email,
+          isLoggedin: true,
+        });
+        navigate("/dashboard");
+      })
+      .catch((error) => {
+        if (error.response) {
+          setMutationLoading(false);
+          toast.error(error.response.data.message);
+        }
+      });
   };
+
+  // const handleLoginSubmitClick = () => {
+  //   if (!password.trim()) {
+  //     return;
+  //   }
+
+  //   onboardInvitedUser.mutate(data);
+  // };
 
   return (
     <>
@@ -83,6 +166,13 @@ const InviteScreen = () => {
       {isLoading ? (
         <div className="fixed top-0 left-0 flex items-center justify-center w-full h-full bg-white">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-t-blue-700"></div>
+        </div>
+      ) : isError ? (
+        <div className="flex items-center justify-center h-screen bg-gray-100">
+          <div className="p-8 bg-white border rounded-md shadow-md">
+            <h2 className="text-3xl font-bold text-red-600 mb-4">Error</h2>
+            <p className="text-gray-600">Verification Failed. Invalid Token</p>
+          </div>
         </div>
       ) : (
         <>
@@ -105,20 +195,8 @@ const InviteScreen = () => {
                       placeholder="john.doe@example.com"
                       required
                       shadow
-                      onChange={validateEmail}
-                      color={validEmail ? "success" : "error"}
-                      helperText={
-                        isLoadingEmail ? (
-                          <Spinner
-                            aria-label="Extra small spinner example"
-                            size="xs"
-                          />
-                        ) : validEmail ? (
-                          "Looks Good !"
-                        ) : (
-                          "Invalid Email"
-                        )
-                      }
+                      value={invite.emailId}
+                      readOnly
                     />
                   </div>
                   <div>
@@ -136,7 +214,17 @@ const InviteScreen = () => {
                       }}
                     />
                   </div>
-                  <Button type="submit">Submit</Button>
+                  <Button
+                    type="submit"
+                    onClick={onboardInvitedUser}
+                    disabled={!password.trim()}
+                    processingSpinner={
+                      <AiOutlineLoading className="h-6 w-6 animate-spin" />
+                    }
+                    isProcessing={isMutationLoading}
+                  >
+                    Submit
+                  </Button>
                 </form>
               </div>
             </>
@@ -173,20 +261,8 @@ const InviteScreen = () => {
                       placeholder="john.doe@example.com"
                       required
                       shadow
-                      onChange={validateEmail}
-                      color={validEmail ? "success" : "error"}
-                      helperText={
-                        isLoadingEmail ? (
-                          <Spinner
-                            aria-label="Extra small spinner example"
-                            size="xs"
-                          />
-                        ) : validEmail ? (
-                          "Looks Good !"
-                        ) : (
-                          "Invalid Email"
-                        )
-                      }
+                      value={invite.emailId}
+                      readOnly
                     />
                   </div>
                   <div>
@@ -204,7 +280,17 @@ const InviteScreen = () => {
                       }}
                     />
                   </div>
-                  <Button type="submit">Submit</Button>
+                  <Button
+                    type="submit"
+                    disabled={!password.trim() || !username.trim()}
+                    processingSpinner={
+                      <AiOutlineLoading className="h-6 w-6 animate-spin" />
+                    }
+                    isProcessing={isMutationLoading}
+                    onClick={onboardInvitedUser}
+                  >
+                    Submit
+                  </Button>
                 </form>
               </div>
             </>

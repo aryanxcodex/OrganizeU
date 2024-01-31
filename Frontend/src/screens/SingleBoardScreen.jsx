@@ -398,7 +398,7 @@ const SingleBoardScreen = () => {
         </div>
       </div>
       <DragDropContext onDragEnd={handleOnDragEnd}>
-        <div className="flex flex-nowrap h-screen overflow-y-auto">
+        <div className="flex flex-nowrap h-screen overflow-y-hidden">
           {isLoading
             ? Array.from({ length: 4 }).map((_, index) => (
                 <div className="pt-0 py-2" key={index}>

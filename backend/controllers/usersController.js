@@ -213,6 +213,69 @@ const checkUserInvitation = asyncHandler(async (req, res) => {
   }
 });
 
+const onboardInvitedUser = asyncHandler(async (req, res) => {
+  const { userId, boardId, password, emailId, userExists, username } = req.body;
+  let userDetails;
+
+  if (userExists) {
+    const user = await User.findOne({ email: emailId });
+
+    if (user && (await user.matchPasswords(password))) {
+      if (!user.isVerified) {
+        res.status(400);
+        throw new Error("Please Verify your email first");
+      }
+      generateToken(res, user._id);
+      userDetails = user;
+    } else {
+      res.status(400);
+      throw new Error("Invalid Credentials");
+    }
+  } else {
+    const user = await User.create({
+      name: username,
+      email: emailId,
+      password: password,
+      isVerified: true,
+    });
+    generateToken(res, user._id);
+    if (user) {
+      userDetails = user;
+    } else {
+      res.status(400);
+      throw new Error("Invalid Username or Password");
+    }
+  }
+
+  const inviteeUser = await User.findById(userId);
+
+  // Validate whether params.id is in the user's boards or not
+  const validate = inviteeUser.boards.filter((board) => board === boardId);
+
+  if (!validate) {
+    res.status(400);
+    throw new Error(
+      "You can not add member to this board, you are not a member or owner!"
+    );
+  }
+
+  const board = await Boards.findById(boardId);
+
+  const newMember = await User.findOne({ email: emailId });
+  newMember.boards.push(board._id);
+  await newMember.save();
+  board.members.push({
+    user: newMember._id,
+    role: "member",
+  });
+  await board.save();
+  res.status(200).json({
+    _id: userDetails._id,
+    name: userDetails.name,
+    email: userDetails.email,
+  });
+});
+
 export {
   loginUser,
   registerUser,
@@ -222,4 +285,5 @@ export {
   confirmUser,
   sendInvitation,
   checkUserInvitation,
+  onboardInvitedUser,
 };
