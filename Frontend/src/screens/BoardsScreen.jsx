@@ -53,7 +53,10 @@ const BoardsScreen = () => {
       // console.log(data);
       queryClient.invalidateQueries(["boards"]);
       setOpenModal(false);
-      setSelectedBoardName(data.data.newBoard.title);
+      setSelectedBoardName({
+        name: data.data.newBoard.title,
+        members: data.data.newBoard.members,
+      });
       navigate(`/board/${data.data.newBoard._id}`);
       toast.success(`Board ${data.data.newBoard.title} was created !`, {
         position: "top-center",
@@ -107,13 +110,13 @@ const BoardsScreen = () => {
 
   const ownerBoards = data?.data?.boards.filter((board) => {
     return board.members.some(
-      (member) => member.user === userId && member.role === "owner"
+      (member) => member.user._id === userId && member.role === "owner"
     );
   });
 
   const memberBoards = data?.data?.boards.filter((board) => {
     return board.members.some(
-      (member) => member.user === userId && member.role !== "owner"
+      (member) => member.user._id === userId && member.role !== "owner"
     );
   });
 
@@ -182,7 +185,10 @@ const BoardsScreen = () => {
                 to={`/board/${item._id}`}
                 key={index}
                 onClick={() => {
-                  setSelectedBoardName(item.title);
+                  setSelectedBoardName({
+                    name: item.title,
+                    members: item.members,
+                  });
                 }}
               >
                 <Cards title={item.title} />
@@ -209,7 +215,10 @@ const BoardsScreen = () => {
               to={`/board/${item._id}`}
               key={index}
               onClick={() => {
-                setSelectedBoardName(item.title);
+                setSelectedBoardName({
+                  name: item.title,
+                  members: item.members,
+                });
               }}
             >
               <Cards title={item.title} />

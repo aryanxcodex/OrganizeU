@@ -163,6 +163,17 @@ const sendInvitation = asyncHandler(async (req, res) => {
   const { boardId, emailId } = req.body;
   const userId = req.user._id;
 
+  const user = await User.findById(userId);
+
+  const validate = user.boards.filter((board) => board === boardId);
+
+  if (!validate) {
+    res.status(400);
+    throw new Error(
+      "You can not invite members to this board, you are not a member or owner!"
+    );
+  }
+
   const board = await Boards.findById(boardId);
 
   const inviteToken = generateInviteToken(userId, boardId, emailId);

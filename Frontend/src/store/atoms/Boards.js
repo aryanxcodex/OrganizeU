@@ -5,6 +5,9 @@ const { persistAtom } = recoilPersist();
 
 export const selectedBoardNameState = atom({
   key: "selectedBoardNameState",
-  default: "",
+  default: {
+    title: "",
+    members: [],
+  },
   effects_UNSTABLE: [persistAtom],
 });

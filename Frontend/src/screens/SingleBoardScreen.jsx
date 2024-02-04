@@ -16,11 +16,13 @@ import {
   Dropdown,
   Modal,
   FloatingLabel,
+  Badge,
 } from "flowbite-react";
 import { toast, Slide } from "react-toastify";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useRecoilValue } from "recoil";
 import { selectedBoardNameState } from "../store/atoms/Boards.js";
+import { userState } from "../store/atoms/User.js";
 
 const SingleBoardScreen = () => {
   const { boardId } = useParams();
@@ -34,6 +36,7 @@ const SingleBoardScreen = () => {
   const [loading, setLoading] = useState(false);
   const ref = useRef(null);
   const selectedBoardName = useRecoilValue(selectedBoardNameState);
+  const userDetails = useRecoilValue(userState);
 
   const queryClient = useQueryClient();
 
@@ -330,13 +333,20 @@ const SingleBoardScreen = () => {
     setLoading(true);
   };
 
+  const isOwner = selectedBoardName?.members?.some(
+    (member) =>
+      member.role === "owner" && member.user._id === userDetails.userId
+  );
+
   return (
     <>
       <div className="navbar bg-slate-300 shadow-lg rounded-lg">
         <div className="flex-none"></div>
-        <div className="flex-1 p-2">
+        <div className="flex-1 p-2 gap-4">
           <Modal show={openModal} onClose={() => setOpenModal(false)}>
-            <Modal.Header>Invite to Board {selectedBoardName}</Modal.Header>
+            <Modal.Header>
+              Invite to Board {selectedBoardName.name}
+            </Modal.Header>
             <Modal.Body>
               <FloatingLabel
                 variant="outlined"
@@ -372,11 +382,31 @@ const SingleBoardScreen = () => {
               </Button>
             </Modal.Footer>
           </Modal>
-          <Dropdown label={selectedBoardName} inline>
-            <Dropdown.Item icon={IoMdAdd} onClick={() => setOpenModal(true)}>
-              Add Member
-            </Dropdown.Item>
-            <Dropdown.Item icon={CiSettings}>Settings</Dropdown.Item>
+          {isOwner && (
+            <Dropdown label={selectedBoardName.name} inline>
+              <Dropdown.Item icon={IoMdAdd} onClick={() => setOpenModal(true)}>
+                Add Member
+              </Dropdown.Item>
+              <Dropdown.Item icon={CiSettings}>Settings</Dropdown.Item>
+            </Dropdown>
+          )}
+          <Dropdown label="Members" inline>
+            {selectedBoardName.members.map((member, index) => (
+              <div className="flex items-center p-2">
+                <Dropdown.Item key={index} className="inline">
+                  {member.user.name}
+                </Dropdown.Item>
+                {member.role === "owner" ? (
+                  <Badge color="info" className="inline ml-2">
+                    Owner
+                  </Badge>
+                ) : (
+                  <Badge color="gray" className="inline ml-2">
+                    Member
+                  </Badge>
+                )}
+              </div>
+            ))}
           </Dropdown>
         </div>
         <div className="flex-none">
