@@ -213,6 +213,25 @@ const updateBoardDescription = asyncHandler(async (req, res) => {
   }
 });
 
+const getMembers = asyncHandler(async (req, res) => {
+  const { boardId } = req.params;
+  // Validate whether boardId is in the user's boards or not
+  const validate = req.user.boards.filter((board) => board === boardId);
+  if (!validate) {
+    throw new Error(
+      "You can not get details of this board, you are not a member or owner!"
+    );
+  }
+
+  try {
+    // Get board by id
+    const board = await Boards.findById(boardId);
+    res.status(200).json({ members: board.members });
+  } catch (error) {
+    throw new Error(error.message);
+  }
+});
+
 export {
   getAllBoards,
   fetchCardsnTasks,
@@ -221,4 +240,5 @@ export {
   addMember,
   updateBoardDescription,
   updateBoardTitle,
+  getMembers
 };

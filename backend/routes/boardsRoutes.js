@@ -7,6 +7,7 @@ import {
   addMember,
   updateBoardDescription,
   updateBoardTitle,
+  getMembers,
 } from "../controllers/boardsController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -18,5 +19,6 @@ router
   .route("/:boardId/update-board-description")
   .put(protect, updateBoardDescription);
 router.route("/:boardId/update-board-title").put(protect, updateBoardTitle);
+router.route("/:boardId/getMembers").get(protect, getMembers);
 
 export default router;

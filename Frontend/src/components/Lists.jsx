@@ -5,6 +5,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_TASKS_URL } from "../../config.js";
 import { toast, Slide } from "react-toastify";
+import Tasks from "./Tasks.jsx";
 import axios from "axios";
 
 const Lists = (props) => {
@@ -117,24 +118,11 @@ const Lists = (props) => {
                   >
                     {props.tasks.map(({ title, _id }, index) => {
                       return (
-                        <Draggable key={_id} draggableId={_id} index={index}>
-                          {(draggableProvided) => (
-                            <li
-                              className="border border-white rounded bg-white p-2"
-                              ref={draggableProvided.innerRef}
-                              {...draggableProvided.draggableProps}
-                              {...draggableProvided.dragHandleProps}
-                            >
-                              <p>{title}</p>
-                            </li>
-                          )}
-                        </Draggable>
+                        <Tasks _id={_id} index={index} title={title} key={_id}></Tasks>
                       );
                     })}
                     {createTask.isPending && (
-                      <li className="border border-white rounded bg-white p-2 opacity-40">
-                        <p>{createTask.variables.title}</p>
-                      </li>
+                      <Tasks title={createTask.variables.title}></Tasks>
                     )}
                     {droppableProvided.placeholder}
                   </ul>

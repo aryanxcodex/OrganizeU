@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.data-rbd-drag-handle-context-id {
+  cursor: pointer;
+}
+
 ::-webkit-scrollbar {
   width: 12px;
 }

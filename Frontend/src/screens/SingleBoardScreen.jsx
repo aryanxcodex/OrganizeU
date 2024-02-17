@@ -22,6 +22,7 @@ import { toast, Slide } from "react-toastify";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useRecoilValue } from "recoil";
 import { selectedBoardNameState } from "../store/atoms/Boards.js";
+import { CgProfile } from "react-icons/cg";
 import { userState } from "../store/atoms/User.js";
 
 const SingleBoardScreen = () => {
@@ -392,16 +393,16 @@ const SingleBoardScreen = () => {
           )}
           <Dropdown label="Members" inline>
             {selectedBoardName.members.map((member, index) => (
-              <div className="flex items-center p-2">
+              <div className="flex items-center p-2" key={index}>
                 <Dropdown.Item key={index} className="inline">
                   {member.user.name}
                 </Dropdown.Item>
                 {member.role === "owner" ? (
-                  <Badge color="info" className="inline ml-2">
+                  <Badge color="info" icon={CgProfile} className="">
                     Owner
                   </Badge>
                 ) : (
-                  <Badge color="gray" className="inline ml-2">
+                  <Badge color="gray" className="">
                     Member
                   </Badge>
                 )}
