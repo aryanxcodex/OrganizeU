@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import Boards from "../models/boards.js";
 import Cards from "../models/cards.js";
 import Tasks from "../models/tasks.js";
+import User from "../models/users.js";
 // import { conn } from "../config/db.js";
 
 //@desc Create a task within a card
@@ -180,4 +181,42 @@ const deleteTask = asyncHandler(async (req, res) => {
     throw new Error(error.message);
   }
 });
-export { createTask, getTask, updateTask, deleteTask };
+
+const assignTask = asyncHandler(async (req, res) => {
+  const user = req.user;
+  const { boardId, cardId, taskId, memberId } = req.params;
+
+  // const member = await User.findById(memberId);
+
+  try {
+    // Get models
+    const task = await Tasks.findById(taskId);
+    const card = await Cards.findById(cardId);
+    const board = await Boards.findById(boardId);
+
+    // Validate owner
+    const validate1 = card.tasks.filter(
+      (item) => item.toString() === task._id.toString()
+    );
+    const validate2 = board.cards.filter(
+      (item) => item.toString() === card._id.toString()
+    );
+    const validate3 = user.boards.filter(
+      (item) => item.toString() === board._id.toString()
+    );
+    if (!(validate1 && validate2 && validate3)) {
+      throw new Error("You dont have permission to delete this task");
+    }
+
+    task.assignedTo.unshift({
+      memberId,
+    });
+
+    await task.save();
+
+    res.status(200).json({ task, message: "Success" });
+  } catch (error) {
+    throw new Error(error.message);
+  }
+});
+export { createTask, getTask, updateTask, deleteTask, assignTask };

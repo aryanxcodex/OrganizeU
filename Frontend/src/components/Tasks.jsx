@@ -8,13 +8,17 @@ import {
   Modal,
   TextInput,
   Progress,
+  Badge,
+  Spinner,
 } from "flowbite-react";
+import { BASE_TASKS_URL } from "../../config.js";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 const Tasks = (props) => {
   const [isHover, setHover] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [email, setEmail] = useState("");
-  const [open, setOpen] = useState(false);
 
   const handleHover = () => {
     setHover((prev) => {
@@ -27,64 +31,47 @@ const Tasks = (props) => {
     setEmail("");
   }
 
+  const taskDetails = useQuery({
+    queryKey: ["tasks", props._id],
+    queryFn: async () => {
+      const data = await axios.get(
+        `${BASE_TASKS_URL}/${props.boardId}/${props.cardId}/${props._id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      const filteredData = {
+        title: data.data.returnObject.title,
+        status: data.data.returnObject.status,
+        assignedTo: data.data.returnObject.assignedTo,
+      };
+
+      return filteredData;
+    },
+    enabled: false,
+  });
+
+  const handleEditClick = () => {
+    setOpenModal(true);
+    taskDetails.refetch();
+  };
+
   return (
     <>
       <Modal show={openModal} size="md" onClose={onCloseModal} popup>
         <Modal.Header />
         <Modal.Body>
-          <div className="space-y-6">
-            <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-              Sign in to our platform
-            </h3>
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="email" value="Your email" />
-              </div>
-              <TextInput
-                id="email"
-                placeholder="name@company.com"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="password" value="Your password" />
-              </div>
-              <TextInput id="password" type="password" required />
-            </div>
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                <Checkbox id="remember" />
-                <Label htmlFor="remember">Remember me</Label>
-              </div>
-              <a
-                href="#"
-                className="text-sm text-cyan-700 hover:underline dark:text-cyan-500"
-              >
-                Lost Password?
-              </a>
-            </div>
-            <div className="w-full">
-              <Button>Log in to your account</Button>
-            </div>
-            <div className="flex justify-between text-sm font-medium text-gray-500 dark:text-gray-300">
-              Not registered?&nbsp;
-              <a
-                href="#"
-                className="text-cyan-700 hover:underline dark:text-cyan-500"
-              >
-                Create account
-              </a>
-            </div>
-          </div>
+          {taskDetails.isFetching && <Spinner size="md" className=""/>}
         </Modal.Body>
       </Modal>
       <Draggable key={props._id} draggableId={props._id} index={props.index}>
         {(draggableProvided) => (
           <li
-            className="border border-white rounded bg-white p-2"
+            className="border border-white rounded bg-white p-1"
             ref={draggableProvided.innerRef}
             {...draggableProvided.draggableProps}
             {...draggableProvided.dragHandleProps}
@@ -92,20 +79,27 @@ const Tasks = (props) => {
             onMouseEnter={handleHover}
             onMouseLeave={handleHover}
           >
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center justify-between">
               <p>{props.title}</p>
               {isHover && (
                 <div
                   className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-300 hover:cursor-pointer"
-                  onClick={() => {
-                    setOpenModal(true);
-                  }}
+                  onClick={handleEditClick}
                 >
                   <CiEdit className="inline-block" fill="black" />
                 </div>
               )}
             </div>
-            <Progress progress={64} className="" size="sm" color="blue" />
+            {/* <Progress
+              progress={64}
+              className=""
+              size="sm"
+              color="blue"
+              progressLabelPosition="inside"
+            /> */}
+            {/* <div className="pt-1">
+              <Badge color="info" className="w-fit">Assigned</Badge>
+            </div> */}
           </li>
         )}
       </Draggable>

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 import { connectDB } from "../config/db.js";
 
-// connectDB();
+connectDB();
 
 const taskSchema = mongoose.Schema({
   title: {
@@ -22,6 +22,9 @@ const taskSchema = mongoose.Schema({
   owner: {
     type: Schema.Types.ObjectId,
     ref: "cards",
+  },
+  progress: {
+    type: Number,
   },
 });
 

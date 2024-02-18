@@ -5,7 +5,8 @@ import {
   createTask,
   getTask,
   deleteTask,
-  updateTask
+  updateTask,
+  assignTask,
 } from "../controllers/tasksController.js";
 
 router.route("/create").post(protect, createTask);
@@ -17,5 +18,7 @@ router
 router
   .route("/:boardId/:cardId/:taskId/delete-card")
   .delete(protect, deleteTask);
+
+router.route("/:boardId/:cardId/:taskId/assign-task").put(protect, assignTask);
 
 export default router;
