@@ -451,6 +451,7 @@ const SingleBoardScreen = () => {
                   _id={item._id}
                   boardId={boardId}
                   tasks={item.tasks}
+                  isOwner={isOwner}
                 ></Lists>
               ))}
           {createCard.isPending && (

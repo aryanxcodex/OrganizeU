@@ -118,7 +118,7 @@ const Lists = (props) => {
                   >
                     {props.tasks.map(({ title, _id }, index) => {
                       return (
-                        <Tasks _id={_id} index={index} title={title} key={_id} cardId={props._id} boardId={props.boardId}></Tasks>
+                        <Tasks _id={_id} index={index} title={title} key={_id} cardId={props._id} boardId={props.boardId} isOwner={props.isOwner}></Tasks>
                       );
                     })}
                     {createTask.isPending && (

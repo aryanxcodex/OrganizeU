@@ -46,7 +46,7 @@ const Tasks = (props) => {
 
       const filteredData = {
         title: data.data.returnObject.title,
-        status: data.data.returnObject.status,
+        taskStatus: data.data.returnObject.status,
         assignedTo: data.data.returnObject.assignedTo,
       };
 
@@ -65,7 +65,41 @@ const Tasks = (props) => {
       <Modal show={openModal} size="md" onClose={onCloseModal} popup>
         <Modal.Header />
         <Modal.Body>
-          {taskDetails.isFetching && <Spinner size="md" className=""/>}
+          {taskDetails.isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <Spinner size="md" />
+            </div>
+          ) : (
+            <div className="space-y-6 font-body">
+              <div>
+                <h4 className="text-xl font-medium text-gray-900 dark:text-white">
+                  {taskDetails?.data?.title}
+                </h4>
+                <p className="text-sm text-gray-500 font-body">
+                  Task Completion Status:{" "}
+                  <span className="font-body">
+                    {taskDetails?.data?.taskStatus}
+                  </span>
+                </p>
+              </div>
+              <div>
+                <h4 className="text-lg font-medium text-gray-900 dark:text-white">
+                  Assigned Members:
+                </h4>
+                <ul className="list-disc ml-6">
+                  {taskDetails?.data?.assignedTo.length > 0 ? (
+                    taskDetails?.data?.assignedTo.map((member, index) => (
+                      <li key={index} className="text-sm text-gray-700">
+                        {member.name}
+                      </li>
+                    ))
+                  ) : (
+                    <p>None yet</p>
+                  )}
+                </ul>
+              </div>
+            </div>
+          )}
         </Modal.Body>
       </Modal>
       <Draggable key={props._id} draggableId={props._id} index={props.index}>
