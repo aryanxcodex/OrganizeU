@@ -10,6 +10,9 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  avatar: {
+    type: String,  //CloudinaryLink
+  },
   email: {
     type: String,
     required: true,

@@ -9,11 +9,21 @@ import {
   confirmUser,
   sendInvitation,
   checkUserInvitation,
-  onboardInvitedUser
+  onboardInvitedUser,
 } from "../controllers/usersController.js";
 import { protect } from "../middleware/authMiddleware.js";
+import { upload } from "../middleware/multerMiddleware.js";
 
-router.post("/register", registerUser);
+router.post(
+  "/register",
+  upload.fields([
+    {
+      name: "avatar",
+      maxCount: 1,
+    },
+  ]),
+  registerUser
+);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router
