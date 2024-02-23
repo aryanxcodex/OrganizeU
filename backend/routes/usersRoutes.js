@@ -29,7 +29,16 @@ router.post("/logout", logoutUser);
 router
   .route("/profile")
   .get(protect, getUserProfile)
-  .put(protect, updateUserProfile);
+  .put(
+    protect,
+    upload.fields([
+      {
+        name: "avatar",
+        maxCount: 1,
+      },
+    ]),
+    updateUserProfile
+  );
 router.get("/confirm/:id", confirmUser);
 router.route("/createInvitation").post(protect, sendInvitation);
 router.route("/checkUserInvitation").post(protect, checkUserInvitation);

@@ -42,6 +42,7 @@ const LoginScreen = () => {
           userId: res.data._id,
           username: res.data.name,
           email: res.data.email,
+          avatar: res.data.avatar,
           isLoggedin: true,
         });
         navigate("/dashboard");

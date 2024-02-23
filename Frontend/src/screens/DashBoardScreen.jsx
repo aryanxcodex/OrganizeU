@@ -1,16 +1,116 @@
 import React from "react";
+import { useState } from "react";
 import { useRecoilValue } from "recoil";
 import { userState } from "../store/atoms/User";
 import ProfileImage from "../assets/profile.jpg";
 import { HiBars3 } from "react-icons/hi2";
 import { Outlet } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { Avatar, Dropdown, Modal } from "flowbite-react";
 
 const DashBoardScreen = (props) => {
   const user = useRecoilValue(userState);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(user.avatar);
+  const [username, setUsername] = useState(user.username);
+  const [password, setPassword] = useState("");
+
+  function onCloseModal() {
+    setOpenModal(false);
+    setPassword("");
+    setUsername(user.username);
+    setSelectedImage(user.avatar);
+  }
+
+  const handleImageInput = (event) => {
+    const file = event.target.files[0];
+    const imageUrl = URL.createObjectURL(file);
+    setSelectedImage(imageUrl);
+  };
+
+  const handleUsernameChange = (event) => {
+    setUsername(event.target.value);
+  };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
 
   return (
     <>
+      <Modal show={openModal} size="md" onClose={onCloseModal} popup>
+        <Modal.Header />
+        <Modal.Body>
+          <div className="max-w-md mx-auto bg-white rounded-lg overflow-hidden shadow-lg">
+            <div className="p-4">
+              <h2 className="text-center text-xl font-semibold mb-4">
+                Edit Profile
+              </h2>
+              <div className="flex flex-col items-center">
+                <label
+                  htmlFor="profile-picture-input"
+                  className="relative inline-block w-32 h-32 rounded-full overflow-hidden cursor-pointer"
+                >
+                  <img
+                    className="object-cover w-full h-full"
+                    src={selectedImage || ProfileImage}
+                    accept="image/*"
+                    alt="Profile"
+                  />
+                  <input
+                    type="file"
+                    id="profile-picture-input"
+                    onChange={handleImageInput}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </label>
+                <form className="mt-4 w-full">
+                  <div className="mb-4">
+                    <label
+                      htmlFor="username"
+                      className="block text-gray-700 font-medium"
+                    >
+                      Username:
+                    </label>
+                    <input
+                      type="text"
+                      id="username"
+                      name="username"
+                      value={username}
+                      onChange={handleUsernameChange}
+                      required
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="password"
+                      className="block text-gray-700 font-medium"
+                    >
+                      Password:
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      value={password}
+                      onChange={handlePasswordChange}
+                      required
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Save Changes
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
       <div className="w-full navbar bg-white shadow-lg sticky top-0 z-10">
         <div className="flex-1">
           <div className="flex-none lg:hidden">
@@ -30,30 +130,29 @@ const DashBoardScreen = (props) => {
               className="input input-bordered w-24 md:w-auto"
             />
           </div>
-          <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full">
-                <img src={ProfileImage} />
-              </div>
-            </label>
-            <ul
-              tabIndex={0}
-              className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
-            >
-              <li>
-                <a className="justify-between">
-                  Profile
-                  <span className="badge">New</span>
-                </a>
-              </li>
-              <li>
-                <a>Settings</a>
-              </li>
-              <li>
-                <a>Logout</a>
-              </li>
-            </ul>
-          </div>
+          <Dropdown
+            label={
+              <Avatar
+                alt="User settings"
+                img={user.avatar || ProfileImage}
+                rounded
+              />
+            }
+            arrowIcon={false}
+            inline
+          >
+            <Dropdown.Header>
+              <span className="block text-sm">{user.username}</span>
+              <span className="block truncate text-sm font-medium">
+                {user.email}
+              </span>
+            </Dropdown.Header>
+            <Dropdown.Item onClick={() => setOpenModal(true)}>
+              Settings
+            </Dropdown.Item>
+            <Dropdown.Divider />
+            <Dropdown.Item>Logout</Dropdown.Item>
+          </Dropdown>
         </div>
       </div>
       <div className="lg:flex lg:flex-row h-screen bg-white">

@@ -25,6 +25,7 @@ const loginUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      avatar: user.avatar,
     });
   } else {
     res.status(400);
@@ -119,8 +120,32 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
+    const userExists = await User.findOne({ name: req.body.name });
+    console.log(userExists);
+
+    if (userExists) {
+      throw new Error(
+        "User with this username already exists, Please choose different username"
+      );
+    }
+
+    let avatarLocalPath;
+    if (
+      req.files &&
+      Array.isArray(req.files.avatar) &&
+      req.files.avatar.length > 0
+    ) {
+      avatarLocalPath = req.files.avatar[0].path;
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+    if (!avatar) {
+      throw new Error("Failed to upload avatar");
+    }
+
     user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
+    user.avatar = avatar.url || user.avatar;
 
     if (req.body.password) {
       user.password = req.body.password;
@@ -131,7 +156,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     res.status(200).json({
       _id: updateUser._id,
       name: updateUser.name,
-      email: updateUser.email,
+      avatar: updateUser.avatar,
     });
   } else {
     res.status(404);
