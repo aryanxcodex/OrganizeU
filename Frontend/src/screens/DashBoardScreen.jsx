@@ -1,12 +1,18 @@
 import React from "react";
 import { useState } from "react";
-import { useRecoilValue } from "recoil";
-import { userState } from "../store/atoms/User";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { userState } from "../store/atoms/User.js";
 import ProfileImage from "../assets/profile.jpg";
+import { CiSettings } from "react-icons/ci";
+import { IoIosLogOut } from "react-icons/io";
 import { HiBars3 } from "react-icons/hi2";
 import { Outlet } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Avatar, Dropdown, Modal } from "flowbite-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { BASE_USERS_URL } from "../../config";
+import { toast, Slide } from "react-toastify";
+import axios from "axios";
 
 const DashBoardScreen = (props) => {
   const user = useRecoilValue(userState);
@@ -14,6 +20,9 @@ const DashBoardScreen = (props) => {
   const [selectedImage, setSelectedImage] = useState(user.avatar);
   const [username, setUsername] = useState(user.username);
   const [password, setPassword] = useState("");
+  const setUser = useSetRecoilState(userState);
+
+  const navigate = useNavigate();
 
   function onCloseModal() {
     setOpenModal(false);
@@ -34,6 +43,55 @@ const DashBoardScreen = (props) => {
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
+  };
+
+  const logoutUser = useMutation({
+    mutationFn: async () => {
+      await axios.post(`${BASE_USERS_URL}/logout`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+    },
+    onSuccess: () => {
+      toast.success("Logged Out", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+      navigate("/");
+    },
+    onError: () => {
+      toast.error(`Something went wrong ! Please try again later`, {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+    },
+  });
+
+  const handleLogout = () => {
+    setUser({
+      userId: null,
+      username: null,
+      email: null,
+      avatar: null,
+      isLoggedin: false,
+    });
+    logoutUser.mutate();
   };
 
   return (
@@ -147,11 +205,13 @@ const DashBoardScreen = (props) => {
                 {user.email}
               </span>
             </Dropdown.Header>
-            <Dropdown.Item onClick={() => setOpenModal(true)}>
+            <Dropdown.Item onClick={() => setOpenModal(true)} icon={CiSettings}>
               Settings
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item>Logout</Dropdown.Item>
+            <Dropdown.Item icon={IoIosLogOut} onClick={handleLogout}>
+              Logout
+            </Dropdown.Item>
           </Dropdown>
         </div>
       </div>

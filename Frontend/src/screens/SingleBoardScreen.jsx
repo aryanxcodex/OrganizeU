@@ -7,6 +7,7 @@ import Lists from "../components/Lists.jsx";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { BASE_CARDS_URL, BASE_USERS_URL } from "../../config.js";
 import axios from "axios";
+import ProfileImage from "../assets/profile.jpg";
 import { FaPlus } from "react-icons/fa";
 import { RiMailSendFill } from "react-icons/ri";
 import Skeleton from "react-loading-skeleton";
@@ -16,6 +17,7 @@ import {
   Dropdown,
   Modal,
   FloatingLabel,
+  Avatar,
   Badge,
 } from "flowbite-react";
 import { toast, Slide } from "react-toastify";
@@ -394,6 +396,10 @@ const SingleBoardScreen = () => {
           <Dropdown label="Members" inline>
             {selectedBoardName.members.map((member, index) => (
               <div className="flex items-center p-2" key={index}>
+                <img
+                  src={member.user.avatar || ProfileImage}
+                  className="w-8 h-8 rounded-full mr-2"
+                />
                 <Dropdown.Item key={index} className="inline">
                   {member.user.name}
                 </Dropdown.Item>

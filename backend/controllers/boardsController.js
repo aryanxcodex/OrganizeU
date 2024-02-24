@@ -18,7 +18,7 @@ const getAllBoards = asyncHandler(async (req, res) => {
     const boards = await Boards.find({ _id: { $in: boardIds } }).populate({
       path: "members.user",
       model: "users",
-      select: "name",
+      select: "name avatar",
     });
 
     // Delete unneccesary objects

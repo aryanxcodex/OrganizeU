@@ -90,12 +90,20 @@ const registerUser = asyncHandler(async (req, res) => {
 //@access PUBLIC
 
 const logoutUser = asyncHandler(async (req, res) => {
-  res.cookie("jwt", "", {
+  const options = {
     httpOnly: true,
-    expires: new Date(0),
-  });
-
-  res.status(200).json({ message: "User Logged Out" });
+    secure: false,
+    sameSite: "strict",
+  };
+  return res
+    .status(200)
+    .clearCookie("jwt", {
+      domain: "localhost", // Change to your domain
+      path: "/", // Change to your path
+      secure: false, // Set to true if using HTTPS
+      httpOnly: true, // Set to true if you want to restrict access to JavaScript
+    })
+    .json({ message: "User logged out" });
 });
 
 //@desc Get User Profile
