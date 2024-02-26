@@ -90,20 +90,13 @@ const registerUser = asyncHandler(async (req, res) => {
 //@access PUBLIC
 
 const logoutUser = asyncHandler(async (req, res) => {
-  const options = {
+  res.cookie("jwt", "", {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV !== "development", // Maintain security for HTTPS
     sameSite: "strict",
-  };
-  return res
-    .status(200)
-    .clearCookie("jwt", {
-      domain: "localhost", // Change to your domain
-      path: "/", // Change to your path
-      secure: false, // Set to true if using HTTPS
-      httpOnly: true, // Set to true if you want to restrict access to JavaScript
-    })
-    .json({ message: "User logged out" });
+    maxAge: -1, // Immediately expire the cookie
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 });
 
 //@desc Get User Profile
@@ -128,8 +121,10 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    const userExists = await User.findOne({ name: req.body.name });
-    console.log(userExists);
+    const userExists = await User.findOne({
+      name: req.body.name,
+      _id: { $ne: user._id },
+    });
 
     if (userExists) {
       throw new Error(

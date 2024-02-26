@@ -1,16 +1,7 @@
 import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { CiEdit } from "react-icons/ci";
-import {
-  Button,
-  Checkbox,
-  Label,
-  Modal,
-  TextInput,
-  Progress,
-  Badge,
-  Spinner,
-} from "flowbite-react";
+import { Tooltip, Modal, Spinner } from "flowbite-react";
 import { BASE_TASKS_URL } from "../../config.js";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -116,12 +107,14 @@ const Tasks = (props) => {
             <div className="flex items-center justify-between">
               <p>{props.title}</p>
               {isHover && (
-                <div
-                  className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-300 hover:cursor-pointer"
-                  onClick={handleEditClick}
-                >
-                  <CiEdit className="inline-block" fill="black" />
-                </div>
+                <Tooltip content="Edit" placement="right">
+                  <div
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-300 hover:cursor-pointer"
+                    onClick={handleEditClick}
+                  >
+                    <CiEdit className="inline-block" fill="black" />
+                  </div>
+                </Tooltip>
               )}
             </div>
             {/* <Progress

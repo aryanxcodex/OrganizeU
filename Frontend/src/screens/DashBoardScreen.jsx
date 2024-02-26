@@ -8,16 +8,20 @@ import { IoIosLogOut } from "react-icons/io";
 import { HiBars3 } from "react-icons/hi2";
 import { Outlet } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
-import { Avatar, Dropdown, Modal } from "flowbite-react";
+import { Avatar, Dropdown, Modal, Button } from "flowbite-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { BASE_USERS_URL } from "../../config";
 import { toast, Slide } from "react-toastify";
 import axios from "axios";
+import { AiOutlineLoading } from "react-icons/ai";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 const DashBoardScreen = (props) => {
   const user = useRecoilValue(userState);
   const [openModal, setOpenModal] = useState(false);
+  const [logoutModal, setLogoutModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(user.avatar);
+  const [previewImage, setPreviewImage] = useState(user.avatar);
   const [username, setUsername] = useState(user.username);
   const [password, setPassword] = useState("");
   const setUser = useSetRecoilState(userState);
@@ -33,8 +37,8 @@ const DashBoardScreen = (props) => {
 
   const handleImageInput = (event) => {
     const file = event.target.files[0];
-    const imageUrl = URL.createObjectURL(file);
-    setSelectedImage(imageUrl);
+    setSelectedImage(file);
+    setPreviewImage(URL.createObjectURL(file));
   };
 
   const handleUsernameChange = (event) => {
@@ -83,6 +87,52 @@ const DashBoardScreen = (props) => {
     },
   });
 
+  const updateProfile = useMutation({
+    mutationKey: ["updateProfile"],
+    mutationFn: async (data) => {
+      await axios.put(`${BASE_USERS_URL}/profile`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+    },
+
+    onSuccess: (data, variables) => {
+      setUser((oldState) => ({
+        ...oldState,
+        username: data.name,
+        email: data.email,
+        avatar: data.avatar,
+      }));
+      toast.success("Profile Updated", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+    },
+
+    onError: (error) => {
+      toast.error(`${error.response.data.message}`, {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+    },
+  });
+
   const handleLogout = () => {
     setUser({
       userId: null,
@@ -91,11 +141,49 @@ const DashBoardScreen = (props) => {
       avatar: null,
       isLoggedin: false,
     });
+    setLogoutModal(false);
     logoutUser.mutate();
+  };
+
+  const handleProfileSave = (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("name", username);
+    formData.append("password", password);
+    formData.append("avatar", selectedImage);
+
+    console.log(formData);
+
+    updateProfile.mutate(formData);
   };
 
   return (
     <>
+      <Modal
+        show={logoutModal}
+        size="md"
+        onClose={() => setLogoutModal(false)}
+        popup
+      >
+        <Modal.Header />
+        <Modal.Body>
+          <div className="text-center">
+            <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+              Are you sure you want to Logout?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <Button color="failure" onClick={handleLogout}>
+                {"Yes, I'm sure"}
+              </Button>
+              <Button color="gray" onClick={() => setLogoutModal(false)}>
+                No, cancel
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
       <Modal show={openModal} size="md" onClose={onCloseModal} popup>
         <Modal.Header />
         <Modal.Body>
@@ -111,7 +199,7 @@ const DashBoardScreen = (props) => {
                 >
                   <img
                     className="object-cover w-full h-full"
-                    src={selectedImage || ProfileImage}
+                    src={previewImage || ProfileImage}
                     accept="image/*"
                     alt="Profile"
                   />
@@ -157,12 +245,16 @@ const DashBoardScreen = (props) => {
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                   </div>
-                  <button
+                  <Button
                     type="submit"
-                    className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    onClick={handleProfileSave}
+                    processingSpinner={
+                      <AiOutlineLoading className="h-6 w-6 animate-spin" />
+                    }
+                    isProcessing={updateProfile.isPending}
                   >
                     Save Changes
-                  </button>
+                  </Button>
                 </form>
               </div>
             </div>
@@ -209,7 +301,12 @@ const DashBoardScreen = (props) => {
               Settings
             </Dropdown.Item>
             <Dropdown.Divider />
-            <Dropdown.Item icon={IoIosLogOut} onClick={handleLogout}>
+            <Dropdown.Item
+              icon={IoIosLogOut}
+              onClick={() => {
+                setLogoutModal(true);
+              }}
+            >
               Logout
             </Dropdown.Item>
           </Dropdown>
