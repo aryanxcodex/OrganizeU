@@ -33,11 +33,13 @@ const DashBoardScreen = (props) => {
     setPassword("");
     setUsername(user.username);
     setSelectedImage(user.avatar);
+    setPreviewImage(user.avatar);
   }
 
   const handleImageInput = (event) => {
     const file = event.target.files[0];
-    setSelectedImage(file);
+    console.log(file);
+    setSelectedImage(event.target.files[0]);
     setPreviewImage(URL.createObjectURL(file));
   };
 
@@ -90,9 +92,9 @@ const DashBoardScreen = (props) => {
   const updateProfile = useMutation({
     mutationKey: ["updateProfile"],
     mutationFn: async (data) => {
-      await axios.put(`${BASE_USERS_URL}/profile`, data, {
+      return await axios.put(`${BASE_USERS_URL}/profile`, data, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
         withCredentials: true,
       });
@@ -101,10 +103,11 @@ const DashBoardScreen = (props) => {
     onSuccess: (data, variables) => {
       setUser((oldState) => ({
         ...oldState,
-        username: data.name,
-        email: data.email,
-        avatar: data.avatar,
+        username: data.data.name,
+        email: data.data.email,
+        avatar: data.data.avatar,
       }));
+      setOpenModal(false);
       toast.success("Profile Updated", {
         position: "top-center",
         autoClose: 2000,
@@ -153,10 +156,26 @@ const DashBoardScreen = (props) => {
     formData.append("password", password);
     formData.append("avatar", selectedImage);
 
-    console.log(formData);
-
     updateProfile.mutate(formData);
   };
+
+  const getProfile = useQuery({
+    queryKey: ["getProfile"],
+    queryFn: async () => {
+      const data = await axios.get(`${BASE_USERS_URL}/profile`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+      const filteredData = {
+        name: data.data.name,
+        email: data.data.email,
+        avatar: data.data.avatar,
+      };
+    },
+  });
 
   return (
     <>

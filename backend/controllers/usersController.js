@@ -105,9 +105,9 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = {
-    _id: req.user._id,
     name: req.user.name,
     email: req.user.email,
+    avatar: req.user.avatar,
   };
 
   res.status(200).json(user);
@@ -119,6 +119,9 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
 const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
+  console.log(user);
+
+  console.log(req.body);
 
   if (user) {
     const userExists = await User.findOne({
@@ -159,6 +162,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     res.status(200).json({
       _id: updateUser._id,
       name: updateUser.name,
+      email: updateUser.email,
       avatar: updateUser.avatar,
     });
   } else {
