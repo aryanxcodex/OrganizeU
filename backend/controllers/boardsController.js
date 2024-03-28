@@ -225,8 +225,14 @@ const getMembers = asyncHandler(async (req, res) => {
 
   try {
     // Get board by id
-    const board = await Boards.findById(boardId);
-    res.status(200).json({ members: board.members });
+    const boardMembers = await Boards.findById({ _id: boardId }).populate({
+      path: "members.user",
+      model: "users",
+      select: "name avatar",
+    }).select("-cards -description -title -_id");
+
+    const response = boardMembers.members
+    res.status(200).json({ response });
   } catch (error) {
     throw new Error(error.message);
   }
@@ -240,5 +246,5 @@ export {
   addMember,
   updateBoardDescription,
   updateBoardTitle,
-  getMembers
+  getMembers,
 };

@@ -5,7 +5,11 @@ import { IoMdAdd } from "react-icons/io";
 import { CiSettings } from "react-icons/ci";
 import Lists from "../components/Lists.jsx";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { BASE_CARDS_URL, BASE_USERS_URL } from "../../config.js";
+import {
+  BASE_CARDS_URL,
+  BASE_USERS_URL,
+  BASE_BOARDS_URL,
+} from "../../config.js";
 import axios from "axios";
 import ProfileImage from "../assets/profile.jpg";
 import { FaPlus } from "react-icons/fa";
@@ -230,7 +234,7 @@ const SingleBoardScreen = () => {
   });
 
   // -----------------------------------------------------------------------------------------------------------------------------
-  // Query for fetching the invitation link
+  // Mutation for the invitation link
 
   const sendInvitation = useMutation({
     mutationKey: ["invitation", emailInput],
@@ -341,6 +345,26 @@ const SingleBoardScreen = () => {
       member.role === "owner" && member.user._id === userDetails.userId
   );
 
+  const boardMembers = useQuery({
+    queryKey: ["members", boardId],
+    queryFn: async () => {
+      const data = await axios.get(`${BASE_BOARDS_URL}/${boardId}/getMembers`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+      return data;
+    },
+    enabled: false,
+  });
+
+  const handleDropdownClick = () => {
+    boardMembers.refetch();
+    console.log(boardMembers.data);
+  };
+
   return (
     <>
       <div className="navbar bg-slate-300 shadow-lg rounded-lg">
@@ -393,28 +417,36 @@ const SingleBoardScreen = () => {
               <Dropdown.Item icon={CiSettings}>Settings</Dropdown.Item>
             </Dropdown>
           )}
-          <Dropdown label="Members" inline>
-            {selectedBoardName.members.map((member, index) => (
-              <div className="flex items-center p-2" key={index}>
-                <img
-                  src={member.user.avatar || ProfileImage}
-                  className="w-8 h-8 rounded-full mr-2"
-                />
-                <Dropdown.Item key={index} className="inline">
-                  {member.user.name}
-                </Dropdown.Item>
-                {member.role === "owner" ? (
-                  <Badge color="info" icon={CgProfile} className="">
-                    Owner
-                  </Badge>
-                ) : (
-                  <Badge color="gray" className="">
-                    Member
-                  </Badge>
-                )}
-              </div>
-            ))}
-          </Dropdown>
+          <div onClick={handleDropdownClick}>
+            <Dropdown label="Members" inline>
+              {boardMembers.isLoading ? (
+                <div className="flex justify-center items-center h-full">
+                  <Spinner size="md" />
+                </div>
+              ) : (
+                boardMembers?.data?.data?.response?.map((member, index) => (
+                  <div className="flex items-center p-2" key={index}>
+                    <img
+                      src={member.user.avatar || ProfileImage}
+                      className="w-8 h-8 rounded-full mr-2"
+                    />
+                    <Dropdown.Item key={index} className="inline">
+                      {member.user.name}
+                    </Dropdown.Item>
+                    {member.role === "owner" ? (
+                      <Badge color="info" icon={CgProfile} className="">
+                        Owner
+                      </Badge>
+                    ) : (
+                      <Badge color="gray" className="">
+                        Member
+                      </Badge>
+                    )}
+                  </div>
+                ))
+              )}
+            </Dropdown>
+          </div>
         </div>
         <div className="flex-none">
           <button className="btn btn-square btn-ghost">

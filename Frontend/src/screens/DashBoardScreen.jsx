@@ -159,23 +159,23 @@ const DashBoardScreen = (props) => {
     updateProfile.mutate(formData);
   };
 
-  const getProfile = useQuery({
-    queryKey: ["getProfile"],
-    queryFn: async () => {
-      const data = await axios.get(`${BASE_USERS_URL}/profile`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      });
+  // const getProfile = useQuery({
+  //   queryKey: ["getProfile"],
+  //   queryFn: async () => {
+  //     const data = await axios.get(`${BASE_USERS_URL}/profile`, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       withCredentials: true,
+  //     });
 
-      const filteredData = {
-        name: data.data.name,
-        email: data.data.email,
-        avatar: data.data.avatar,
-      };
-    },
-  });
+  //     const filteredData = {
+  //       name: data.data.name,
+  //       email: data.data.email,
+  //       avatar: data.data.avatar,
+  //     };
+  //   },
+  // });
 
   return (
     <>

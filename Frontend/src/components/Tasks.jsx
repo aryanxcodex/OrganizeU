@@ -1,7 +1,7 @@
 import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { CiEdit } from "react-icons/ci";
-import { Tooltip, Modal, Spinner } from "flowbite-react";
+import { Tooltip, Modal, Spinner, Progress, Badge } from "flowbite-react";
 import { BASE_TASKS_URL } from "../../config.js";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
