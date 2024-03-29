@@ -1,6 +1,6 @@
 import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
-import { CiEdit } from "react-icons/ci";
+import { IoIosInformationCircleOutline } from "react-icons/io";
 import { Tooltip, Modal, Spinner, Progress, Badge } from "flowbite-react";
 import { BASE_TASKS_URL } from "../../config.js";
 import { useQuery } from "@tanstack/react-query";
@@ -107,12 +107,12 @@ const Tasks = (props) => {
             <div className="flex items-center justify-between">
               <p>{props.title}</p>
               {isHover && (
-                <Tooltip content="Edit" placement="right">
+                <Tooltip content="Info" placement="right">
                   <div
                     className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-300 hover:cursor-pointer"
                     onClick={handleEditClick}
                   >
-                    <CiEdit className="inline-block" fill="black" />
+                    <IoIosInformationCircleOutline />
                   </div>
                 </Tooltip>
               )}

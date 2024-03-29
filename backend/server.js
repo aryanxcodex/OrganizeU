@@ -8,7 +8,9 @@ import userRoutes from "./routes/usersRoutes.js";
 import boardsRoutes from "./routes/boardsRoutes.js";
 import cardsRoutes from "./routes/cardsRoutes.js";
 import tasksRoutes from "./routes/tasksRoutes.js";
+import { createServer } from "http";
 import cors from "cors";
+import { Server } from "socket.io";
 dotenv.config();
 const port = process.env.PORT || 5000;
 
@@ -22,6 +24,16 @@ const corsOptions = {
 };
 
 const app = express();
+
+const server = createServer(app);
+
+const io = new Server(server, {
+  corsOptions,
+});
+
+io.on("connection", (socket) => {
+  console.log("User Connected", socket.id);
+});
 
 app.use(cors(corsOptions));
 

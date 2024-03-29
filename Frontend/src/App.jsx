@@ -13,6 +13,7 @@ import { Suspense } from "react";
 import Skeleton from "react-loading-skeleton";
 import Loader from "./components/Loader.jsx";
 import InviteScreen from "./screens/InviteScreen.jsx";
+import Chat from "./components/Chat.jsx";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
   {
     path: "/invite",
     element: <InviteScreen />,
+  },
+  {
+    path: "/chat",
+    element: <Chat />,
   },
 ]);
 

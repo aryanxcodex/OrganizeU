@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { AiOutlineLoading } from "react-icons/ai";
 import { IoMdAdd } from "react-icons/io";
 import { CiSettings } from "react-icons/ci";
+import { IoChatboxEllipses, IoClose } from "react-icons/io5";
 import Lists from "../components/Lists.jsx";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import {
@@ -30,10 +31,16 @@ import { useRecoilValue } from "recoil";
 import { selectedBoardNameState } from "../store/atoms/Boards.js";
 import { CgProfile } from "react-icons/cg";
 import { userState } from "../store/atoms/User.js";
+import Chat from "../components/Chat.jsx";
 
 const SingleBoardScreen = () => {
   const { boardId } = useParams();
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const toggleDrawer = () => {
+    setIsDrawerOpen(!isDrawerOpen);
+  };
   const [clickFooter, setClickFooter] = useState(false);
   const [cardTitle, setCardTitle] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -449,21 +456,27 @@ const SingleBoardScreen = () => {
           </div>
         </div>
         <div className="flex-none">
-          <button className="btn btn-square btn-ghost">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              className="inline-block w-5 h-5 stroke-current"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-              ></path>
-            </svg>
+          <button
+            className="btn btn-square btn-ghost"
+            id="openDrawerButton"
+            onClick={toggleDrawer}
+          >
+            <IoChatboxEllipses style={{ fontSize: "1.5rem" }} />
           </button>
+          <div
+            id="drawer"
+            className={`fixed top-24 right-0 z-50 bg-white shadow-lg transform transition-transform duration-300 ${
+              isDrawerOpen ? "" : "translate-x-full"
+            }`}
+          >
+            {/* Drawer content */}
+            <button className="absolute top-2 right-2" onClick={toggleDrawer}>
+              <IoClose size={24} />
+            </button>
+            <div className="p-4">
+              <Chat />
+            </div>
+          </div>
         </div>
       </div>
       <DragDropContext onDragEnd={handleOnDragEnd}>
