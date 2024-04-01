@@ -27,20 +27,26 @@ import {
 } from "flowbite-react";
 import { toast, Slide } from "react-toastify";
 import { DragDropContext } from "react-beautiful-dnd";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { selectedBoardNameState } from "../store/atoms/Boards.js";
 import { CgProfile } from "react-icons/cg";
 import { userState } from "../store/atoms/User.js";
 import Chat from "../components/Chat.jsx";
+import { newNotificationStateFamily } from "../store/atoms/Chat.js";
 
 const SingleBoardScreen = () => {
   const { boardId } = useParams();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [hasNewNotification, setNewNotification] = useRecoilState(
+    newNotificationStateFamily(boardId)
+  );
 
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
+    setNewNotification(false);
   };
+
   const [clickFooter, setClickFooter] = useState(false);
   const [cardTitle, setCardTitle] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -457,11 +463,14 @@ const SingleBoardScreen = () => {
         </div>
         <div className="flex-none">
           <button
-            className="btn btn-square btn-ghost"
+            className="btn btn-square btn-ghost relative"
             id="openDrawerButton"
             onClick={toggleDrawer}
           >
             <IoChatboxEllipses style={{ fontSize: "1.5rem" }} />
+            {hasNewNotification && (
+              <div className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></div>
+            )}
           </button>
           <div
             id="drawer"
@@ -474,7 +483,7 @@ const SingleBoardScreen = () => {
               <IoClose size={24} />
             </button>
             <div className="p-4">
-              <Chat />
+              <Chat boardId={boardId} />
             </div>
           </div>
         </div>

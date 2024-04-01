@@ -28,11 +28,32 @@ const app = express();
 const server = createServer(app);
 
 const io = new Server(server, {
-  corsOptions,
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
 });
 
 io.on("connection", (socket) => {
-  console.log("User Connected", socket.id);
+  console.log("User connected");
+
+  // Join user to board's chat room
+  socket.on("joinBoard", (boardId, userId) => {
+    socket.join(boardId);
+    console.log(`User ${userId} joined board ${boardId} chat room`);
+  });
+
+  // Handle chat messages
+  socket.on("chatMessage", ({ boardId, userId, userProfileImage, message }) => {
+    io.to(boardId).emit("chatMessage", { userId, userProfileImage, message }); // Broadcast message to board members
+    console.log(`User ${userId} sent message to board ${boardId}: ${message}`);
+  });
+
+  // Handle user disconnection
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
 });
 
 app.use(cors(corsOptions));
@@ -61,6 +82,6 @@ if (process.env.NODE_ENV === "production") {
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
