@@ -19,6 +19,8 @@ router
   .route("/:boardId/:cardId/:taskId/delete-card")
   .delete(protect, deleteTask);
 
-router.route("/:boardId/:cardId/:taskId/assign-task").put(protect, assignTask);
+router
+  .route("/:boardId/:cardId/:taskId/:memberId/assign-task")
+  .put(protect, assignTask);
 
 export default router;

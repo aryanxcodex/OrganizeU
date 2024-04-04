@@ -33,6 +33,7 @@ import { CgProfile } from "react-icons/cg";
 import { userState } from "../store/atoms/User.js";
 import Chat from "../components/Chat.jsx";
 import { newNotificationStateFamily } from "../store/atoms/Chat.js";
+import useBoardMembers from "../hooks/useBoardMembers.js";
 
 const SingleBoardScreen = () => {
   const { boardId } = useParams();
@@ -46,6 +47,8 @@ const SingleBoardScreen = () => {
     setIsDrawerOpen(!isDrawerOpen);
     setNewNotification(false);
   };
+
+  const boardMembers = useBoardMembers(boardId);
 
   const [clickFooter, setClickFooter] = useState(false);
   const [cardTitle, setCardTitle] = useState("");
@@ -358,26 +361,6 @@ const SingleBoardScreen = () => {
       member.role === "owner" && member.user._id === userDetails.userId
   );
 
-  const boardMembers = useQuery({
-    queryKey: ["members", boardId],
-    queryFn: async () => {
-      const data = await axios.get(`${BASE_BOARDS_URL}/${boardId}/getMembers`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      });
-
-      return data;
-    },
-    enabled: false,
-  });
-
-  const handleDropdownClick = () => {
-    boardMembers.refetch();
-    console.log(boardMembers.data);
-  };
-
   return (
     <>
       <div className="navbar bg-slate-300 shadow-lg rounded-lg">
@@ -430,36 +413,34 @@ const SingleBoardScreen = () => {
               <Dropdown.Item icon={CiSettings}>Settings</Dropdown.Item>
             </Dropdown>
           )}
-          <div onClick={handleDropdownClick}>
-            <Dropdown label="Members" inline>
-              {boardMembers.isLoading ? (
-                <div className="flex justify-center items-center h-full">
-                  <Spinner size="md" />
+          <Dropdown label="Members" inline>
+            {boardMembers.isLoading ? (
+              <div className="flex justify-center items-center h-full">
+                <Spinner size="md" />
+              </div>
+            ) : (
+              boardMembers?.data?.data?.response?.map((member, index) => (
+                <div className="flex items-center p-2" key={index}>
+                  <img
+                    src={member.user.avatar || ProfileImage}
+                    className="w-8 h-8 rounded-full mr-2"
+                  />
+                  <Dropdown.Item key={index} className="inline">
+                    {member.user.name}
+                  </Dropdown.Item>
+                  {member.role === "owner" ? (
+                    <Badge color="info" icon={CgProfile} className="">
+                      Owner
+                    </Badge>
+                  ) : (
+                    <Badge color="gray" className="">
+                      Member
+                    </Badge>
+                  )}
                 </div>
-              ) : (
-                boardMembers?.data?.data?.response?.map((member, index) => (
-                  <div className="flex items-center p-2" key={index}>
-                    <img
-                      src={member.user.avatar || ProfileImage}
-                      className="w-8 h-8 rounded-full mr-2"
-                    />
-                    <Dropdown.Item key={index} className="inline">
-                      {member.user.name}
-                    </Dropdown.Item>
-                    {member.role === "owner" ? (
-                      <Badge color="info" icon={CgProfile} className="">
-                        Owner
-                      </Badge>
-                    ) : (
-                      <Badge color="gray" className="">
-                        Member
-                      </Badge>
-                    )}
-                  </div>
-                ))
-              )}
-            </Dropdown>
-          </div>
+              ))
+            )}
+          </Dropdown>
         </div>
         <div className="flex-none">
           <button
@@ -488,6 +469,7 @@ const SingleBoardScreen = () => {
           </div>
         </div>
       </div>
+
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <div className="flex flex-nowrap h-screen overflow-y-hidden">
           {isLoading

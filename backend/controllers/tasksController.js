@@ -70,7 +70,10 @@ const getTask = asyncHandler(async (req, res) => {
 
   try {
     // Get models
-    const task = await Tasks.findById(taskId);
+    const task = await Tasks.findById(taskId).populate({
+      path: "assignedTo",
+      select: "name avatar",
+    });
     const card = await Cards.findById(cardId);
     const board = await Boards.findById(boardId);
 
@@ -192,7 +195,13 @@ const assignTask = asyncHandler(async (req, res) => {
     // Get models
     const task = await Tasks.findById(taskId);
     const card = await Cards.findById(cardId);
-    const board = await Boards.findById(boardId);
+    const board = await Boards.findById({ _id: boardId })
+      .populate({
+        path: "members.user",
+        model: "users",
+        select: "_id",
+      })
+      .select("-description -title -name -avatar");
 
     // Validate owner
     const validate1 = card.tasks.filter(
@@ -205,12 +214,20 @@ const assignTask = asyncHandler(async (req, res) => {
       (item) => item.toString() === board._id.toString()
     );
     if (!(validate1 && validate2 && validate3)) {
-      throw new Error("You dont have permission to delete this task");
+      throw new Error("You dont have permission to assign this task");
     }
 
-    task.assignedTo.unshift({
-      memberId,
-    });
+    console.log(memberId);
+
+    const memberExists = board.members.some(
+      (member) => member.user._id.toString() === memberId
+    );
+
+    if (!memberExists) {
+      throw new Error("Member not found in the board");
+    }
+
+    task.assignedTo.unshift(memberId);
 
     await task.save();
 
