@@ -3,13 +3,14 @@ import { Draggable } from "react-beautiful-dnd";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { Tooltip, Modal, Spinner, Avatar } from "flowbite-react";
 import { BASE_TASKS_URL } from "../../config.js";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Dropdown } from "flowbite-react";
 import useBoardMembers from "../hooks/useBoardMembers.js";
 import ProfileImage from "../assets/profile.jpg";
 import { useRecoilValue } from "recoil";
 import { userState } from "../store/atoms/User.js";
+import { Slide, toast } from "react-toastify";
 
 const Tasks = (props) => {
   const [isHover, setHover] = useState(false);
@@ -17,6 +18,8 @@ const Tasks = (props) => {
   const [email, setEmail] = useState("");
   const [selectedMember, setSelectedMember] = useState(null);
   const userDetails = useRecoilValue(userState);
+
+  const queryClient = useQueryClient();
 
   const handleHover = () => {
     setHover((prev) => {
@@ -34,11 +37,6 @@ const Tasks = (props) => {
   };
 
   const boardMembers = useBoardMembers(props.boardId);
-
-  const isOwner = boardMembers?.data?.data?.response?.some(
-    (member) =>
-      member.role === "owner" && member.user._id === userDetails.userId
-  );
 
   const taskDetails = useQuery({
     queryKey: ["tasks", props._id],
@@ -61,7 +59,6 @@ const Tasks = (props) => {
 
       return filteredData;
     },
-    enabled: false,
   });
 
   const handleEditClick = () => {
@@ -76,9 +73,72 @@ const Tasks = (props) => {
       )
   );
 
-  // useEffect(() => {
-  //   console.log(filteredBoardMembers);
-  // }, []);
+  const assignTask = useMutation({
+    mutationKey: ["assignTask", props._id],
+    mutationFn: async () => {
+      const response = await axios.put(
+        `${BASE_TASKS_URL}/${props.boardId}/${props.cardId}/${props._id}/${selectedMember.user._id}/assign-task`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      return response.data;
+    },
+
+    onSuccess: () => {
+      toast.success(`Task assigned successfully`, {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+    },
+
+    onError: () => {
+      toast.error(`Something went wrong ! Please try again later`, {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+    },
+  });
+
+  const handleAssignTask = async () => {
+    if (!selectedMember) {
+      toast.error(`Please select a member first `, {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+      return;
+    }
+    assignTask.mutate();
+    await queryClient.invalidateQueries({
+      queryKey: ["tasks", props._id],
+    });
+  };
 
   return (
     <>
@@ -123,7 +183,7 @@ const Tasks = (props) => {
                 </ul>
               </div>
               {/* Section to assign task to members */}
-              {isOwner && (
+              {props.isOwner && (
                 <div className="mt-6">
                   <div className="mb-3">
                     <h4 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -182,8 +242,11 @@ const Tasks = (props) => {
                   </div>
                   <button
                     className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full mt-4 focus:outline-none"
-                    // onClick={assignTask}
+                    onClick={handleAssignTask}
                   >
+                    {assignTask.isPending && (
+                      <span className="loading loading-spinner"></span>
+                    )}
                     Assign Task
                   </button>
                 </div>
@@ -216,6 +279,24 @@ const Tasks = (props) => {
                 </Tooltip>
               )}
             </div>
+            {taskDetails?.data?.assignedTo.length > 0 && (
+              <>
+                <div className="border-t border-cyan-800"></div>
+                <div className="flex items-center pt-1">
+                  <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                    Assigned
+                  </span>
+                  {taskDetails?.data?.assignedTo.map((member, index) => (
+                    <img
+                      class="w-6 h-6 rounded mx-1"
+                      src={member?.avatar || ProfileImage}
+                      alt="Extra small avatar"
+                      key={index}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </li>
         )}
       </Draggable>
