@@ -13,8 +13,8 @@ const HomeScreen = () => {
       <Navbar>
         <Hero />
       </Navbar>
-      <div className="flex flex-wrap sm:justify-between mx-4 sm:mx-0 bg-base-200">
-        <div className="w-full sm:w-1/2 lg:w-1/3 mx-4">
+      {/* <div className="flex flex-wrap sm:justify-between mx-4 sm:mx-0 bg-base-200">
+        <div className="w-full sm:w-1/2 lg:w-1/3 mx-auto">
           <div className="h-56 sm:h-64 xl:h-80 2xl:h-96 my-2">
             <Carousel
               leftControl={
@@ -33,8 +33,7 @@ const HomeScreen = () => {
             </Carousel>
           </div>
         </div>
-        <div className="my-3">afdafdasf</div>
-      </div>
+      </div> */}
     </>
   );
 };
