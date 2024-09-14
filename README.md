@@ -35,7 +35,7 @@ OrganizeU is a powerful and user-friendly collaborative task management system d
 
 - **Basic Functionalites**: In the video below you can see how basic functionalities like creating a board adding a task and inviting a member is done. 
 
-![Basic Functionalities](https://res.cloudinary.com/difni7szo/video/upload/v1726311674/BasicFunctioanlities.webm)
+![Basic Functionalities](![image](https://github.com/user-attachments/assets/98e8e1a2-df06-4c7e-b647-d0f941996b6d)
 
 - **Invitation Accept**: The video below showcases the procedure of how the invitation is being accepted.
 
