@@ -8,9 +8,9 @@ OrganizeU is a powerful and user-friendly collaborative task management system d
 
 - **Real-Time Collaboration:** Collaborate with team members in real time, allowing seamless task assignment and updates.
 
-- **Recoil for State Management:** Utilizes the Recoil state management library to handle application state effectively.
-
 - **User-Friendly Interface:** Designed with a user-friendly and intuitive interface to enhance productivity.
+
+- **Adding-Members Functionality:** User can add a member to their board using email invitation.
 
 ## Tech Stack
 
@@ -27,5 +27,20 @@ OrganizeU is a powerful and user-friendly collaborative task management system d
   - Express.js: A web application framework for building APIs.
   - Node.js: A JavaScript runtime environment.
   - Mongoose: An ODM (Object Data Modeling) library for MongoDB.
+  - Cloudinary: For storing user uploaded images.
+  - SendGrid: For sending the invitation mails to users.
 
-- **Real-Time Communication**: WebSocket technology for real-time collaboration features.
+
+## Demo of Features
+
+- **Basic Functionalites**: In the video below you can see how basic functionalities like creating a board adding a task and inviting a member is done. 
+
+![Basic Functionalities](https://res.cloudinary.com/difni7szo/video/upload/v1726311674/BasicFunctioanlities.webm)
+
+- **Invitation Accept**: The video below showcases the procedure of how the invitation is being accepted.
+
+![Invitation Accept](https://res.cloudinary.com/difni7szo/video/upload/v1726311440/InvitationAccept.webm)
+
+- **Collaborative Features**: The video below showcases the real-time collaborativeness of our project.
+
+![Collaborative Features](https://res.cloudinary.com/difni7szo/video/upload/v1726311556/Collaboration.webm)
