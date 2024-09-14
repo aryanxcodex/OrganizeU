@@ -35,12 +35,13 @@ OrganizeU is a powerful and user-friendly collaborative task management system d
 
 - **Basic Functionalites**: In the video below you can see how basic functionalities like creating a board adding a task and inviting a member is done. 
 
-![Basic Functionalities](https://github-production-user-asset-6210df.s3.amazonaws.com/115007121/367510933-e09f91c7-6762-4feb-80ff-ee2f25317e79.webm?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240914%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240914T111719Z&X-Amz-Expires=300&X-Amz-Signature=72b87a7a29288e13a04d22536ae6a38afd75f57168517f71d29ce308e7132c98&X-Amz-SignedHeaders=host&actor_id=115007121&key_id=0&repo_id=716489319)
+[Watch the video](https://res.cloudinary.com/difni7szo/video/upload/v1726313488/Basic%20Functionalities.webm)
+
 
 - **Invitation Accept**: The video below showcases the procedure of how the invitation is being accepted.
 
-![Invitation Accept](https://res.cloudinary.com/difni7szo/video/upload/v1726311440/InvitationAccept.webm)
+[Watch the video](https://res.cloudinary.com/difni7szo/video/upload/v1726313490/Invitation.webm)
 
 - **Collaborative Features**: The video below showcases the real-time collaborativeness of our project.
 
-![Collaborative Features](https://res.cloudinary.com/difni7szo/video/upload/v1726311556/Collaboration.webm)
+[Watch the video](https://res.cloudinary.com/difni7szo/video/upload/v1726313483/Collaboration.webm)
